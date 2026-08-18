@@ -1,0 +1,108 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "0352094a64851386360c",
+  "displayName": "Geographic Analysis",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "81d46cb7bd408231c8bc",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Page Subtitles"
+              }
+            },
+            "Property": "Page Name"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "_",
+              "Entity": "_Page Subtitles",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "_"
+                          }
+                        },
+                        "Property": "Page Name"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Geographic Analysis'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "692aefe7390d3d50dd82",
+      "target": "05c16e540352bc21a6c5",
+      "type": "NoFilter"
+    },
+    {
+      "source": "692aefe7390d3d50dd82",
+      "target": "e406e2f664c4b620bb13",
+      "type": "NoFilter"
+    },
+    {
+      "source": "692aefe7390d3d50dd82",
+      "target": "fa8736bb73b0a5097013",
+      "type": "NoFilter"
+    },
+    {
+      "source": "692aefe7390d3d50dd82",
+      "target": "2f41036e88ebd51a562c",
+      "type": "NoFilter"
+    },
+    {
+      "source": "05c16e540352bc21a6c5",
+      "target": "692aefe7390d3d50dd82",
+      "type": "NoFilter"
+    },
+    {
+      "source": "05c16e540352bc21a6c5",
+      "target": "e406e2f664c4b620bb13",
+      "type": "NoFilter"
+    },
+    {
+      "source": "05c16e540352bc21a6c5",
+      "target": "2f41036e88ebd51a562c",
+      "type": "NoFilter"
+    },
+    {
+      "source": "05c16e540352bc21a6c5",
+      "target": "fa8736bb73b0a5097013",
+      "type": "NoFilter"
+    }
+  ]
+}

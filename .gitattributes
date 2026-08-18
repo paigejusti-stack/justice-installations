@@ -1,0 +1,26 @@
+* text=auto
+
+*.md text eol=lf
+*.json text eol=lf
+*.tmdl text eol=lf
+*.pbip text eol=lf
+*.pbir text eol=lf
+*.pbism text eol=lf
+*.js text eol=lf
+*.py text eol=lf
+*.sql text eol=lf
+*.csv text eol=lf
+*.html text eol=lf
+
+# Keep the real SQL hostname in the working copy, out of committed history.
+# Requires the local filter config in docs/dev-setup.md — without it the file
+# commits verbatim, so run the two git config commands before your first push.
+"pbi/Justice Installations.SemanticModel/definition/expressions.tmdl" filter=scrubhost
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.docx binary
+*.xlsx binary
+*.abf binary
+*.bacpac binary

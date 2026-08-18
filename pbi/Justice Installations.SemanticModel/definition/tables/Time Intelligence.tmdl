@@ -1,0 +1,36 @@
+table 'Time Intelligence'
+	isHidden
+	lineageTag: c2db6ddd-0907-401e-a807-82fe3896510a
+
+	/// Time intelligence calculations. Use Time Calc as a filter/slicer/column on any measure.
+	calculationGroup
+
+		calculationItem Current = SELECTEDMEASURE()
+
+		calculationItem PY = CALCULATE(SELECTEDMEASURE(), SAMEPERIODLASTYEAR('Date'[Date]))
+
+		calculationItem YoY =
+				VAR _Curr = SELECTEDMEASURE()
+				VAR _Prior = CALCULATE(SELECTEDMEASURE(), SAMEPERIODLASTYEAR('Date'[Date]))
+				RETURN _Curr - _Prior
+
+		calculationItem 'YoY %' =
+				VAR _Curr = SELECTEDMEASURE()
+				VAR _Prior = CALCULATE(SELECTEDMEASURE(), SAMEPERIODLASTYEAR('Date'[Date]))
+				RETURN DIVIDE(_Curr - _Prior, _Prior)
+
+			formatStringDefinition = "0.0%;-0.0%;0.0%"
+
+		calculationItem YTD = CALCULATE(SELECTEDMEASURE(), DATESYTD('Date'[Date]))
+
+		calculationItem MTD = CALCULATE(SELECTEDMEASURE(), DATESMTD('Date'[Date]))
+
+		calculationItem 'Rolling 12M' = CALCULATE(SELECTEDMEASURE(), DATESINPERIOD('Date'[Date], MAX('Date'[Date]), -12, MONTH))
+
+	column 'Time Calc'
+		dataType: string
+		isHidden
+		lineageTag: 9ce81b86-5515-4b7c-9bf9-876fbc917c3e
+
+	partition 'Partition_Time Intelligence' = calculationGroup
+

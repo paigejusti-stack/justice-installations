@@ -1,0 +1,179 @@
+/// Inbound requests. Grain: one row per lead/request.
+table Leads
+	lineageTag: b75d08b7-8317-4f2f-ad6c-98999cd2675b
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a1d83112-f2cb-4d59-b834-6f969f864348
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CityKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 65617c7e-84dc-45a0-8887-0b2670b19c2a
+		summarizeBy: none
+		sourceColumn: CityKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RequestedDateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8bfa05e2-7c4f-4b22-ac8a-96fd2ab79e3d
+		summarizeBy: count
+		sourceColumn: RequestedDateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerNameNormalized
+		dataType: string
+		isHidden
+		lineageTag: e0078461-6ebd-4a18-886c-8521baa770e8
+		summarizeBy: none
+		sourceColumn: CustomerNameNormalized
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: df29f72b-4a95-4cd3-992c-ea5e18596cc0
+		summarizeBy: none
+		sourceColumn: CityName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Requested Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: bac74779-0e2d-473f-9268-91271b153fcc
+		summarizeBy: none
+		sourceColumn: RequestedDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Request Status'
+		dataType: string
+		lineageTag: 331a3c2e-16fe-4e14-af77-302714412ddc
+		summarizeBy: none
+		sourceColumn: RequestStatus
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Form Name'
+		dataType: string
+		lineageTag: ecfeed16-9f15-4767-964a-60967e8ecb0a
+		summarizeBy: none
+		sourceColumn: FormName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Online Booking'
+		dataType: string
+		lineageTag: b9862f16-ed1c-46a2-aa82-f987c5159513
+		summarizeBy: none
+		sourceColumn: OnlineBooking
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quote Number'
+		dataType: string
+		lineageTag: dc830900-f4e3-45ed-8130-edd62336f182
+		summarizeBy: none
+		sourceColumn: QuoteNumber
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Job Number'
+		dataType: string
+		lineageTag: 9211f7a0-a881-489c-9ba7-dca7dc8854fc
+		summarizeBy: none
+		sourceColumn: JobNumber
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Time Window'
+		dataType: string
+		lineageTag: 873a3cdc-4f3c-49fb-ac56-dd40cb3e56af
+		summarizeBy: none
+		sourceColumn: TimeWindow
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsConverted
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 890ed60d-f6a4-4480-9ffb-0e2e363a2d11
+		summarizeBy: sum
+		sourceColumn: IsConverted
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsDeclined
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 03664a7f-ce91-4f93-a442-bab6764045c3
+		summarizeBy: sum
+		sourceColumn: IsDeclined
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsOpen
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a38cf603-7c96-4986-a129-7c6183d06d28
+		summarizeBy: sum
+		sourceColumn: IsOpen
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactLeads = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SqlServer, SqlDatabase),
+				    dw_FactLeads = Source{[Schema="dw",Item="FactLeads"]}[Data]
+				in
+				    dw_FactLeads
+
+	annotation PBI_ResultType = Table
+

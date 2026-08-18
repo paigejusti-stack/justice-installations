@@ -1,0 +1,147 @@
+/// City master with state, county, and core-market flag.
+table City
+	lineageTag: 1329a61d-39d1-4b2c-a848-6bce34f88196
+
+	measure 'Revenue per Customer star rating' =
+			
+			VAR __MAX_NUMBER_OF_STARS = 5
+			VAR __MIN_RATED_VALUE = 500
+			VAR __MAX_RATED_VALUE = 1300
+			VAR __BASE_VALUE = [Revenue per Customer]
+			VAR __NORMALIZED_BASE_VALUE =
+				MIN(
+					MAX(
+						DIVIDE(
+							__BASE_VALUE - __MIN_RATED_VALUE,
+							__MAX_RATED_VALUE - __MIN_RATED_VALUE
+						),
+						0
+					),
+					1
+				)
+			VAR __STAR_RATING = ROUND(__NORMALIZED_BASE_VALUE * __MAX_NUMBER_OF_STARS, 0)
+			RETURN
+				IF(
+					NOT ISBLANK(__BASE_VALUE),
+					REPT(UNICHAR(9733), __STAR_RATING)
+						& REPT(UNICHAR(9734), __MAX_NUMBER_OF_STARS - __STAR_RATING)
+				)
+		formatString: $#,0;($#,0);$0
+		lineageTag: faf34e5b-d400-4bd0-80fd-de18ac06c9fe
+
+		extendedProperty MeasureTemplate =
+				{
+				  "version": 0,
+				  "daxTemplateName": "StarRating"
+				}
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column CityKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6a9832b5-a334-4f85-a19d-7c168b88f45a
+		summarizeBy: none
+		sourceColumn: CityKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 194c4a1a-9d98-4a73-8d6c-8a4a78d6cb0f
+		summarizeBy: none
+		sourceColumn: CityName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: b2f6fb1d-4b70-486f-b34d-a1013eaa785f
+		summarizeBy: none
+		sourceColumn: StateCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column County
+		dataType: string
+		lineageTag: 480ba375-fb76-48e1-a97f-428c9c176d84
+		summarizeBy: none
+		sourceColumn: County
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sample ZIP'
+		dataType: string
+		lineageTag: 960df5d8-ef71-46aa-8968-4515079b7efb
+		summarizeBy: none
+		sourceColumn: SampleZip
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Population Band'
+		dataType: string
+		lineageTag: 3f486401-d249-44a7-a69e-398f153da185
+		summarizeBy: none
+		sourceColumn: PopulationBand
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Core Market'
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7d326468-f65f-453f-9e28-38d3fa6a102f
+		summarizeBy: none
+		sourceColumn: IsCoreMarket
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Latitude
+		dataType: double
+		lineageTag: 02dcc414-496e-431d-9cd8-84da79f59517
+		summarizeBy: sum
+		sourceColumn: Latitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Longitude
+		dataType: double
+		lineageTag: 7e9b83d7-4266-4b18-8a8a-38f914bb1d98
+		summarizeBy: sum
+		sourceColumn: Longitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition DimCity = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SqlServer, SqlDatabase),
+				    dw_DimCity = Source{[Schema="dw",Item="DimCity"]}[Data]
+				in
+				    dw_DimCity
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

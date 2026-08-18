@@ -1,0 +1,176 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 929.34952951559933,
+            "y": 229.53813680806971
+          },
+          "nodeIndex": "Date",
+          "nodeLineageTag": "2473db59-4d32-45c8-b4c1-014142be5f1f",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 6,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 27.992455708301151,
+            "y": 241.41227895776765
+          },
+          "nodeIndex": "City",
+          "nodeLineageTag": "1329a61d-39d1-4b2c-a848-6bce34f88196",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 7,
+          "expandedHeight": 236.80301771667956
+        },
+        {
+          "location": {
+            "x": 324.30196101633658,
+            "y": 421.30518816247758
+          },
+          "nodeIndex": "Leads",
+          "nodeLineageTag": "b75d08b7-8317-4f2f-ad6c-98999cd2675b",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 9,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 628.37391354562192,
+            "y": 419.8868356245178
+          },
+          "nodeIndex": "Jobs",
+          "nodeLineageTag": "912b9f69-5267-4d4e-8155-565438a8b4ca",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 11,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 911.82342436559588,
+            "y": 0
+          },
+          "nodeIndex": "Technician",
+          "nodeLineageTag": "5761d325-f4ca-4abb-8f09-68e559263997",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 5,
+          "expandedHeight": 268
+        },
+        {
+          "location": {
+            "x": 507.49090925895985,
+            "y": 72.780384841583043
+          },
+          "nodeIndex": "Invoice Lines",
+          "nodeLineageTag": "9b690991-b981-41e2-b6f1-d47ceec6e183",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 8,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 156.75775196648647,
+            "y": 0
+          },
+          "nodeIndex": "Service",
+          "nodeLineageTag": "b581d868-8dea-4f00-bc8a-47e9e92309c1",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 2,
+          "expandedHeight": 248
+        },
+        {
+          "location": {
+            "x": 484.26948375361042,
+            "y": 680.77206989029958
+          },
+          "nodeIndex": "Customer",
+          "nodeLineageTag": "8a2c3a1f-8144-408a-9e9c-b04d612256df",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 10,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 1334.2702714227103,
+            "y": 8.3977367124903566
+          },
+          "nodeIndex": "_Measures",
+          "nodeLineageTag": "f23a9674-d70b-4b67-add4-a4d239a59f1c",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 3,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 1319.2072354819795,
+            "y": 109.17057726237462
+          },
+          "nodeIndex": "_Page Subtitles",
+          "nodeLineageTag": "050e2013-fc42-4907-9f8d-ab3254ce3b53",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 4,
+          "expandedHeight": 200
+        },
+        {
+          "location": {
+            "x": 1311.4103209137913,
+            "y": 215.84601206415527
+          },
+          "nodeIndex": "Time Intelligence",
+          "nodeLineageTag": "c2db6ddd-0907-401e-a807-82fe3896510a",
+          "size": {
+            "height": 72,
+            "width": 234
+          },
+          "zIndex": 1,
+          "expandedHeight": 104
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 35.723911128792082,
+      "pinKeyFieldsToTop": true,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

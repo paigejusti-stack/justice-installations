@@ -1,0 +1,41 @@
+/// Page subtitle text lookup. Used by report-page header visuals.
+table '_Page Subtitles'
+	isHidden
+	lineageTag: 050e2013-fc42-4907-9f8d-ab3254ce3b53
+
+	column 'Page Name'
+		isHidden
+		lineageTag: bf104dce-6932-4bec-8ec4-d454b20bce32
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Page Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Subtitle
+		isHidden
+		lineageTag: 2fee744d-d40e-4e3b-8883-71f49f1804cd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Subtitle]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition '_Page Subtitles' = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Page Name", STRING,
+				    "Subtitle", STRING,
+				    {
+				        {"Executive Overview",       "EXECUTIVE OVERVIEW - OKC METRO HOME SERVICES"},
+				        {"Service Line Performance", "SERVICE LINE PERFORMANCE - OKC METRO HOME SERVICES"},
+				        {"Geographic Analysis",      "GEOGRAPHIC ANALYSIS - OKC METRO HOME SERVICES"},
+				        {"Customer & Pipeline",      "CUSTOMER & PIPELINE - OKC METRO HOME SERVICES"},
+				        {"Operations & Forecasting", "OPERATIONS & FORECASTING - OKC METRO HOME SERVICES"}
+				    }
+				)
+
+	annotation PBI_Id = f880c54b4cca4e54826a89b616194654
+

@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justice Installations — Home-Services Operations &amp; Pipeline Analytics</title>
+<meta name="description" content="A source-controlled Power BI solution for a home-installation contractor: SQL Server warehouse, TMDL semantic model, five-page operational report.">
+<link rel="icon" href="assets/branding/icon.png">
+<style>
+:root{
+  --ink:#0A1730; --ink2:#0F2044; --panel:#1A3566; --panel2:#22407A; --line:#2E4C86;
+  --text:#EDF1F8; --muted:#97A9C8; --dim:#6E82A6;
+  --gold:#C9A84C; --gold-lt:#E8C97A; --cream:#F5E6A8;
+  --green:#5DBF7A; --amber:#E8B547; --coral:#E27D60;
+  --maxw:1180px; --nav:64px;
+  --sans:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Times New Roman",serif;
+  --shadow:0 18px 50px rgba(0,0,0,.46);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:calc(var(--nav) + 16px)}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:var(--sans); font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+a{color:var(--gold-lt); text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3{line-height:1.2; margin:0}
+h2{font-family:var(--serif); font-size:clamp(30px,4.4vw,44px); font-weight:400; letter-spacing:-.3px}
+h3{font-size:20px; font-weight:600; margin-bottom:8px}
+p{margin:0 0 18px}
+strong{color:#fff; font-weight:600}
+code{font-size:.92em}
+
+/* ---------- nav ---------- */
+.nav{
+  position:sticky; top:0; z-index:50; height:var(--nav);
+  background:rgba(10,23,48,.84); backdrop-filter:blur(14px) saturate(150%);
+  border-bottom:1px solid var(--line);
+}
+.nav .wrap{display:flex; align-items:center; gap:26px; height:100%}
+.brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.02em; color:var(--text)}
+.brand:hover{text-decoration:none; color:#fff}
+.brand img{height:28px; width:auto; display:block}
+.navlinks{display:flex; gap:22px; margin-left:auto; align-items:center}
+.navlinks a{color:var(--muted); font-size:14.5px; font-weight:600; position:relative; padding:4px 0}
+.navlinks a:hover{color:var(--text); text-decoration:none}
+.navlinks a::after{
+  content:""; position:absolute; left:0; right:100%; bottom:0; height:2px;
+  background:var(--gold); border-radius:2px; transition:right .22s ease;
+}
+.navlinks a:hover::after{right:0}
+.navlinks .icon{display:grid; place-items:center; width:34px; height:34px; border-radius:8px;
+  border:1px solid var(--line); background:var(--panel); color:var(--muted); padding:0}
+.navlinks .icon:hover{border-color:var(--gold); color:var(--gold)}
+.navlinks .icon::after{display:none}
+.navlinks .icon svg{width:17px; height:17px; fill:currentColor; display:block}
+@media (max-width:800px){ .navlinks .hide-sm{display:none} .nav .wrap{gap:14px} }
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative; overflow:hidden; border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(1000px 460px at 10% -12%, rgba(201,168,76,.20), transparent 62%),
+    radial-gradient(1000px 500px at 92% -4%, rgba(74,163,223,.16), transparent 64%),
+    var(--ink);
+  padding:76px 0 60px;
+}
+.hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.4;
+  background-image:linear-gradient(rgba(46,76,134,.34) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(46,76,134,.34) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(760px 420px at 50% 0%, #000 20%, transparent 78%);
+  -webkit-mask-image:radial-gradient(760px 420px at 50% 0%, #000 20%, transparent 78%);
+}
+.hero .wrap{position:relative; z-index:1}
+.hero-logo{height:70px; width:auto; display:block; margin-bottom:26px; border-radius:6px}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:9px; color:var(--gold); font-size:12px;
+  font-weight:700; letter-spacing:.18em; text-transform:uppercase; margin-bottom:20px;
+}
+.eyebrow::before{content:""; width:26px; height:2px; background:var(--gold); border-radius:2px}
+.hero h1{
+  font-family:var(--serif); font-weight:400;
+  font-size:clamp(38px,6.2vw,70px); letter-spacing:-1px; margin-bottom:20px;
+  background:linear-gradient(180deg,#fff 30%, #BFCBE0);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.lede{font-size:clamp(17px,2.1vw,21px); color:var(--muted); max-width:70ch; margin-bottom:26px}
+
+.byline{display:flex; align-items:center; gap:12px; margin-bottom:32px; flex-wrap:wrap}
+.byline .who{font-size:14.5px; color:var(--muted)}
+.byline .who b{color:var(--text); font-weight:600}
+.byline .sep{color:var(--line)}
+.byline a{font-size:14.5px; font-weight:600; display:inline-flex; align-items:center; gap:6px}
+.byline a svg{width:15px; height:15px; fill:currentColor}
+
+.cta{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:40px}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; padding:12px 21px; border-radius:9px;
+  border:1px solid var(--line); background:var(--panel); color:var(--text);
+  font-size:14.5px; font-weight:600; transition:transform .16s ease, border-color .16s ease, background .16s ease;
+}
+.btn:hover{border-color:var(--gold); text-decoration:none; transform:translateY(-2px)}
+.btn.primary{background:var(--gold); border-color:var(--gold); color:#12203D}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn svg{width:16px; height:16px; fill:currentColor}
+
+.stats{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.stat{background:var(--panel); padding:20px 20px 18px; position:relative; transition:background .2s ease}
+.stat::before{content:""; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-lt)); opacity:0; transition:opacity .2s ease}
+.stat:hover{background:var(--panel2)}
+.stat:hover::before{opacity:1}
+.stat b{display:block; font-size:clamp(24px,3.1vw,31px); font-weight:700; letter-spacing:-.6px}
+.stat span{display:block; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.09em; margin-top:4px}
+
+/* ---------- sections ---------- */
+section{padding:82px 0; border-bottom:1px solid rgba(46,76,134,.55); counter-increment:sec}
+section.alt{background:linear-gradient(180deg, var(--ink2), var(--ink))}
+.kicker{
+  display:flex; align-items:center; gap:10px;
+  color:var(--gold-lt); font-size:12px; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; margin-bottom:14px;
+}
+.kicker::before{
+  content:counter(sec,decimal-leading-zero); color:var(--dim); font-family:var(--serif);
+  font-size:15px; letter-spacing:0; padding-right:10px; border-right:1px solid var(--line);
+}
+.sub{color:var(--muted); max-width:74ch; margin-top:16px}
+
+figure{margin:30px 0 0}
+figure img{
+  width:100%; height:auto; display:block;
+  border:1px solid var(--line); border-radius:12px; background:var(--panel);
+  box-shadow:var(--shadow); transition:transform .3s ease, border-color .3s ease;
+}
+figure img:hover{transform:translateY(-3px); border-color:var(--dim)}
+figcaption{color:var(--dim); font-size:13.5px; margin-top:11px}
+
+.qs{list-style:none; padding:0; margin:26px 0 0; counter-reset:q}
+.qs li{
+  counter-increment:q; position:relative; padding:14px 0 14px 48px;
+  border-top:1px solid rgba(46,76,134,.55); color:var(--muted); transition:color .2s ease;
+}
+.qs li:hover{color:var(--text)}
+.qs li::before{
+  content:counter(q); position:absolute; left:0; top:13px;
+  width:29px; height:29px; border-radius:50%; display:grid; place-items:center;
+  background:var(--panel); border:1px solid var(--line);
+  color:var(--gold); font-size:13px; font-weight:700; transition:border-color .2s ease;
+}
+.qs li:hover::before{border-color:var(--gold)}
+
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; margin-top:30px}
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 24px;
+  transition:transform .18s ease, border-color .18s ease;
+}
+.card:hover{transform:translateY(-3px); border-color:var(--dim)}
+.card p{margin:0; color:var(--muted); font-size:15.5px}
+.card code{background:var(--ink); border:1px solid var(--line); border-radius:4px;
+  padding:1px 5px; font-size:13px; color:var(--text)}
+.card .tag{font-size:11.5px; color:var(--gold); text-transform:uppercase; letter-spacing:.1em; margin-bottom:9px; font-weight:700}
+
+.finding{padding:40px 0; border-top:1px solid rgba(46,76,134,.55)}
+.finding:first-of-type{border-top:0}
+.finding h3{font-family:var(--serif); font-weight:400; font-size:clamp(23px,3.2vw,32px); margin-bottom:14px}
+.finding p{color:var(--muted)}
+.num{color:var(--gold-lt); font-weight:700}
+.num.bad{color:var(--coral)}
+.num.warn{color:var(--amber)}
+.num.good{color:var(--green)}
+
+.flow{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:30px 0 0}
+.node{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 16px;
+  font-size:14px; transition:transform .18s ease, border-color .18s ease;
+}
+.node:hover{transform:translateY(-3px); border-color:var(--gold)}
+.node b{display:block; font-size:12px; color:var(--gold); letter-spacing:.06em; text-transform:uppercase}
+.arrow{color:var(--dim)}
+
+.tablewrap{overflow-x:auto; margin-top:26px}
+table{width:100%; border-collapse:collapse; font-size:15px; min-width:520px}
+th,td{text-align:left; padding:13px 15px; border-bottom:1px solid rgba(46,76,134,.55)}
+th{background:var(--panel); color:var(--text); font-size:12.5px; text-transform:uppercase; letter-spacing:.08em}
+tbody tr{transition:background .16s ease}
+tbody tr:hover{background:rgba(26,53,102,.55)}
+td{color:var(--muted)}
+td:first-child{color:var(--text); font-weight:600; white-space:nowrap}
+
+.note{border-left:3px solid var(--amber); background:rgba(232,181,71,.07); padding:18px 22px; border-radius:0 10px 10px 0; margin-top:28px}
+.note p{margin:0; color:var(--muted); font-size:15.5px}
+
+.rec{
+  background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--gold);
+  border-radius:0 12px 12px 0; padding:24px 28px; margin-top:18px;
+  transition:transform .18s ease, border-color .18s ease;
+}
+.rec:hover{transform:translateX(3px)}
+.rec h3{display:flex; align-items:center; gap:12px; font-size:19px; margin-bottom:14px}
+.rec .rn{
+  flex:0 0 auto; width:27px; height:27px; border-radius:50%;
+  display:grid; place-items:center; background:var(--gold); color:#12203D;
+  font-size:13px; font-weight:800;
+}
+.rec p{color:var(--muted); font-size:15.5px; margin-bottom:12px}
+.rec p:last-child{margin-bottom:0}
+.rec .meas{
+  color:var(--dim); font-size:14px; border-top:1px solid rgba(46,76,134,.7);
+  padding-top:12px; margin-top:15px;
+}
+
+/* ---------- about ---------- */
+.about{display:grid; grid-template-columns:1.35fr 1fr; gap:28px; align-items:start; margin-top:30px}
+@media (max-width:820px){ .about{grid-template-columns:1fr} }
+.about .bio p{color:var(--muted)}
+.contact{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:24px; box-shadow:var(--shadow)}
+.contact .tag{font-size:11.5px; color:var(--gold); text-transform:uppercase; letter-spacing:.1em; font-weight:700; margin-bottom:14px}
+.contact a{
+  display:flex; align-items:center; gap:11px; padding:11px 13px; margin:0 -13px;
+  border-radius:9px; color:var(--text); font-size:15px; font-weight:600; transition:background .16s ease;
+}
+.contact a:hover{background:var(--panel2); text-decoration:none}
+.contact a svg{width:18px; height:18px; fill:var(--muted); flex:0 0 auto}
+.contact a:hover svg{fill:var(--gold)}
+.contact a small{display:block; font-weight:400; font-size:13px; color:var(--dim)}
+
+footer{padding:52px 0 66px; color:var(--dim); font-size:14px; background:var(--ink2); border-top:1px solid var(--line)}
+footer a{color:var(--muted)}
+footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; margin-top:14px}
+
+@media (max-width:640px){
+  body{font-size:16px} section{padding:56px 0} .hero{padding:52px 0 44px}
+  .hero-logo{height:52px}
+}
+@media (prefers-reduced-motion: no-preference){
+  @supports (animation-timeline: view()){
+    .finding, .card, .rec, .stats, figure, .flow, .tablewrap, .about{
+      animation:rise .7s both; animation-timeline:view(); animation-range:entry 0% entry 46%;
+    }
+    @keyframes rise{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+  }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <img src="assets/branding/icon.png" alt="">
+      Justice Installations
+    </a>
+    <div class="navlinks">
+      <a class="hide-sm" href="#findings">Findings</a>
+      <a class="hide-sm" href="#recs">Recommendations</a>
+      <a class="hide-sm" href="#demo">Get the report</a>
+      <a class="icon" href="https://www.linkedin.com/in/paige-justice/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05a4.2 4.2 0 0 1 3.78-2.08c4.04 0 4.79 2.66 4.79 6.12V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z"/></svg>
+      </a>
+      <a class="icon" href="https://github.com/paigejusti-stack/justice-installations" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <img class="hero-logo" src="assets/branding/logo.png" alt="Justice Installations">
+    <div class="eyebrow">Power BI · SQL Server · DAX · TMDL</div>
+    <h1>Every invoice gets paid.<br>A quarter of requests never become one.</h1>
+    <p class="lede">Operations and pipeline analytics for a home-installation contractor in the
+      Oklahoma City metro — from a SQL Server warehouse, through a TMDL semantic model, to a
+      five-page operational report.</p>
+
+    <div class="byline">
+      <span class="who">A portfolio project by <b>Paige Justice</b></span>
+      <span class="sep">·</span>
+      <a href="https://www.linkedin.com/in/paige-justice/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05a4.2 4.2 0 0 1 3.78-2.08c4.04 0 4.79 2.66 4.79 6.12V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z"/></svg>
+        Connect on LinkedIn
+      </a>
+    </div>
+
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/paigejusti-stack/justice-installations/releases/latest">Download the report (.pbix)</a>
+      <a class="btn" href="https://github.com/paigejusti-stack/justice-installations">View on GitHub</a>
+      <a class="btn" href="docs/data-dictionary/Data_Dictionary.xlsx">Data dictionary</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b>$595K</b><span>Revenue</span></div>
+      <div class="stat"><b>2,500</b><span>Jobs</span></div>
+      <div class="stat"><b>3,200</b><span>Leads</span></div>
+      <div class="stat"><b>106</b><span>DAX measures</span></div>
+      <div class="stat"><b>5</b><span>Report pages</span></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">The problem</div>
+    <h2>Five questions the report has to answer</h2>
+    <p class="sub">A home-services installer lives or dies on two numbers: how many inbound requests
+      turn into booked jobs, and how much each job is worth. Everything else — technician
+      utilisation, service mix, geography — is downstream of those. The trouble is that the two
+      numbers live in different systems. Leads arrive through a website form, a phone call or a
+      referral. Jobs get scheduled and completed. Invoices get raised and paid. Nobody had one
+      place to ask:</p>
+
+    <ol class="qs">
+      <li>How is the business performing overall, and against last year?</li>
+      <li>Which services actually drive revenue, and how are they priced?</li>
+      <li>Where does revenue come from geographically, and how concentrated is it?</li>
+      <li>Where do customers come from, and how well do leads convert?</li>
+      <li>How well is the team executing, and where is volume headed?</li>
+    </ol>
+
+    <figure>
+      <img src="artifacts/01-executive-overview.png" alt="Executive Overview page: KPI strip, revenue by month, revenue by city and service, outstanding AR by county">
+      <figcaption>Executive Overview — the summary page.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="kicker">Architecture</div>
+    <h2>A star schema, not a spreadsheet</h2>
+    <p class="sub">Three facts and five conformed dimensions in a <code>dw</code> schema, scripted
+      one object per file. The model connects through two Power Query parameters rather than a
+      hard-coded connection string, and a git clean filter substitutes a placeholder hostname at
+      staging time — so the repository has never contained a real server name.</p>
+
+    <div class="flow">
+      <div class="node"><b>SQL Server</b>dw.* star schema</div>
+      <span class="arrow">→</span>
+      <div class="node"><b>Import</b>TMDL semantic model</div>
+      <span class="arrow">→</span>
+      <div class="node"><b>PBIR</b>Five-page report</div>
+      <span class="arrow">→</span>
+      <div class="node"><b>Decisions</b>Intake · mix · capacity</div>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Fact</th><th>Grain</th><th>Dimensions referenced</th></tr></thead>
+        <tbody>
+          <tr><td>dw.FactJobs</td><td>one row per job</td><td>Customer, City, Technician, Date</td></tr>
+          <tr><td>dw.FactInvoiceLines</td><td>one row per invoice line</td><td>Customer, Service, City, Technician, Date</td></tr>
+          <tr><td>dw.FactLeads</td><td>one row per inbound request</td><td>Customer, City, Date</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="tag">Least privilege</div>
+        <p>The report connects as <code>PBIReader</code>, whose entire permission set is one
+          <code>GRANT SELECT ON SCHEMA::[dw]</code>. No <code>db_datareader</code> — that role would
+          also expose every other schema in the database.</p>
+      </div>
+      <div class="card">
+        <div class="tag">PII shape without PII</div>
+        <p><code>dw.DimCustomer</code> carries name, email, phone and consent flags because a real
+          warehouse would. The values are synthetic, and the semantic model does not surface them.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Calculation group</div>
+        <p><code>Time Intelligence</code> holds seven items — <code>PY</code>, <code>YoY</code>,
+          <code>YoY %</code>, <code>YTD</code>, <code>MTD</code>, <code>Rolling 12M</code> — built on
+          <code>SELECTEDMEASURE()</code>, so time intelligence is seven definitions rather than seven
+          variants of every base measure.</p>
+      </div>
+      <div class="card">
+        <div class="tag">106 measures, six folders</div>
+        <p>Revenue, Jobs &amp; Operations, Leads &amp; Pipeline, Customers, Time Intelligence and
+          Geographic. The YoY set follows a fixed three-measure pattern, so adding a KPI to a card row
+          is mechanical rather than bespoke.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="findings">
+  <div class="wrap">
+    <div class="kicker">What the data says</div>
+    <h2>Findings</h2>
+    <p class="sub">Every figure below is computed by the model in this repository. None of it is
+      illustrative.</p>
+
+    <div class="finding">
+      <h3>The online booking form converts worse than a human taking the request</h3>
+      <p>This is the one that inverts the usual assumption. Self-service intake is supposed to be
+        the cheap, scalable channel. Here it is the leaky one.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Channel</th><th>Leads</th><th>Converted</th><th>Rate</th><th>Declined</th><th>Stalled</th></tr></thead>
+          <tbody>
+            <tr><td>Phone / manual</td><td>2,230</td><td>1,808</td><td><span class="num good">81.1%</span></td><td>10.6%</td><td>8.3%</td></tr>
+            <tr><td>Online form</td><td>970</td><td>628</td><td><span class="num bad">64.7%</span></td><td>18.7%</td><td>16.6%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:22px">A <span class="num">16.3-point</span> gap. Online leads stall at
+        exactly <span class="num bad">2.00×</span> the manual rate and are declined at
+        <span class="num bad">1.76×</span>. And it is not a start-up wobble — the gap holds every
+        year the data covers: <span class="num">20.2</span> points in 2024,
+        <span class="num">14.2</span> in 2025, <span class="num">13.5</span> so far in 2026. The
+        form is improving and has never closed the gap.</p>
+      <p>The pattern matters as much as the size. High declines <em>and</em> high stalls together
+        implicate request quality rather than follow-up effort: the form is letting people submit
+        requests that cannot be quoted as written.</p>
+    </div>
+
+    <div class="finding">
+      <h3>Collections is not the problem. Intake is.</h3>
+      <p>Outstanding AR is <span class="num good">$1,520.20</span> against
+        <span class="num">$595,242.05</span> of revenue — <span class="num good">0.26%</span>.
+        Essentially everything invoiced gets paid. There is no receivable story here.</p>
+      <p>The leak is entirely upstream. Of 3,200 inbound requests,
+        <span class="num bad">764 (23.9%)</span> never become jobs — and of those,
+        <span class="num bad">346</span> are neither converted nor declined. They are sitting in
+        <em>Needs Clarification</em>, <em>Pending Review</em> or <em>New</em>. Nobody said no.
+        Nobody said yes.</p>
+      <p>At the average ticket of <span class="num">$251.05</span>, those 346 stalled requests
+        represent roughly <span class="num warn">$87,000</span> of revenue that has neither been
+        won nor formally lost.</p>
+
+      <figure>
+        <img src="artifacts/04-customer-and-pipeline.png" alt="Customer and Pipeline page: customer KPIs, lead funnel by stage, lead source matrix and customers by lead source">
+        <figcaption>Customer &amp; Pipeline — where the funnel stalls.</figcaption>
+      </figure>
+    </div>
+
+    <div class="finding">
+      <h3>Nearly a third of revenue is one service category, and a fifth is one line item</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Category</th><th>Revenue</th><th>Share</th></tr></thead>
+          <tbody>
+            <tr><td>TV Mounting</td><td>$175,902.00</td><td><span class="num warn">29.55%</span></td></tr>
+            <tr><td>Lighting</td><td>$139,724.20</td><td>23.47%</td></tr>
+            <tr><td>Smart Home</td><td>$61,309.85</td><td>10.30%</td></tr>
+            <tr><td>Fans</td><td>$61,286.95</td><td>10.30%</td></tr>
+            <tr><td>Remaining five</td><td>$157,019.05</td><td>26.38%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:22px">The top two categories are <span class="num warn">53.0%</span> of
+        the business. A single line item — TV Mount (Standard) — is
+        <span class="num warn">$120,024.45, or 20.16% of all revenue</span>, on 639 units. Thirty-one
+        services are offered; the concentration sits in a handful.</p>
+    </div>
+
+    <div class="finding">
+      <h3>The specialists are idle, and specialising is not buying anything</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Group</th><th>Techs</th><th>Jobs</th><th>Share</th><th>Rating</th><th>Duration</th><th>Cancel</th></tr></thead>
+          <tbody>
+            <tr><td>All Services</td><td>2</td><td>2,034</td><td><span class="num warn">81.4%</span></td><td>4.653</td><td>108.2 min</td><td>4.8%</td></tr>
+            <tr><td>TV Mounting / Smart Home</td><td>1</td><td>255</td><td>10.2%</td><td>4.574</td><td>104.3 min</td><td>4.7%</td></tr>
+            <tr><td>Lighting / Fans / Electrical</td><td>1</td><td>211</td><td>8.4%</td><td>4.659</td><td>112.9 min</td><td>4.3%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:22px">Two generalists carry 81% of jobs and
+        <span class="num">$480,699.90</span> of revenue. The two specialists take 466 jobs between
+        them — and are not measurably better at the work they specialise in. Ratings differ by less
+        than a tenth of a star, durations by a few minutes, cancellation rates by fractions of a
+        point. Whatever the specialist designation was meant to achieve, the data does not show it
+        achieving it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="recs">
+  <div class="wrap">
+    <div class="kicker">Recommendations</div>
+    <h2>What to do about it</h2>
+    <p class="sub">Four decisions the findings support, each with the evidence behind it and the
+      number that would show it worked.</p>
+
+    <div class="rec">
+      <h3><span class="rn">1</span> Fix the booking form, not the follow-up process</h3>
+      <p><strong>Evidence:</strong> Online leads are declined at 1.76× and stall at 2.00× the manual
+        rate. Both failure modes elevated together implicates the request, not the response.</p>
+      <p><strong>Action:</strong> Make the form collect what a quote actually requires — mount
+        surface and stud type for TV work, fixture height and existing wiring for lighting, a photo.
+        Add required fields rather than optional ones. Every field that stops an unquotable request
+        from being submitted is worth more than a faster reply to it.</p>
+      <p class="meas"><strong>Success metric:</strong> Online conversion within 5 points of manual,
+        and <em>Needs Clarification</em> under 4% of online leads.</p>
+    </div>
+
+    <div class="rec">
+      <h3><span class="rn">2</span> Put the 346 stalled leads on a clock</h3>
+      <p><strong>Evidence:</strong> 10.8% of all leads are in a non-terminal state. At $251.05
+        average ticket that is roughly $87,000 unresolved.</p>
+      <p><strong>Action:</strong> Give <em>Needs Clarification</em>, <em>Pending Review</em> and
+        <em>New</em> a maximum age — say seven days — after which the lead is either quoted or
+        explicitly declined. A declined lead is a clean number. An indefinitely open one is not.</p>
+      <p class="meas"><strong>Success metric:</strong> Non-terminal leads under 3% of the pipeline
+        at any month end.</p>
+    </div>
+
+    <div class="rec">
+      <h3><span class="rn">3</span> Decide whether TV Mounting is the business or a risk</h3>
+      <p><strong>Evidence:</strong> One category is 29.55% of revenue; one line item is 20.16%.</p>
+      <p><strong>Action:</strong> This is a strategy question the data raises but cannot answer.
+        Either lean in — price the TV Mount tiers deliberately, build the attach-rate motion for
+        soundbars and smart devices — or deliberately grow Lighting and Smart Home to dilute it.
+        What is not defensible is holding a fifth of revenue in a single SKU without having chosen
+        to.</p>
+      <p class="meas"><strong>Success metric:</strong> Either TV Mount (Standard) attach rate up, or
+        its revenue share down. Movement in a chosen direction.</p>
+    </div>
+
+    <div class="rec">
+      <h3><span class="rn">4</span> Retire the specialist designation or make it mean something</h3>
+      <p><strong>Evidence:</strong> Specialists handle 18.6% of jobs and show no rating, duration or
+        cancellation advantage on their own categories.</p>
+      <p><strong>Action:</strong> If specialisation is real, route work to it — the scheduler should
+        prefer the specialist for their categories, and their share of those categories should rise.
+        If it is not real, drop the label and schedule purely on availability, which is effectively
+        what is happening now anyway.</p>
+      <p class="meas"><strong>Success metric:</strong> Either specialist share of their own
+        categories above 50%, or the designation removed from the technician dimension.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Model design</div>
+    <h2>The date dimension that isn't finished</h2>
+    <p class="sub">The most useful thing a portfolio project can document is the decision it has
+      not made yet.</p>
+
+    <p style="margin-top:26px"><code>DimDate</code> is shared by all three facts, and each fact
+      carries several date keys — <code>FactJobs</code> has requested, start and end;
+      <code>FactInvoiceLines</code> has issue and start. That is the classic setup for a
+      role-playing dimension.</p>
+
+    <p>But the model joins each fact to <code>Date</code> on exactly one of them:
+      <code>StartDateKey</code>, <code>IssueDateKey</code> and <code>RequestedDateKey</code>
+      respectively. There is one inactive relationship — <code>Invoice Lines.StartDateKey →
+      Date.DateKey</code> — and <strong>no measure activates it</strong>.
+      <code>USERELATIONSHIP</code> appears nowhere in the model.</p>
+
+    <p>So "revenue by job start date" versus "revenue by invoice issue date" is not currently a
+      question the report can answer, even though every key needed to support it is present. Booking
+      lag and revenue recognition timing are therefore invisible, which is a real limitation on a
+      report whose central finding is about intake.</p>
+
+    <div class="note">
+      <p>Documenting this rather than quietly shipping around it is deliberate. The relationships
+        file is 13 lines of TMDL in source control — anyone reviewing this repository can verify the
+        claim in about thirty seconds, which is the point of keeping the model as text.</p>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="demo">
+  <div class="wrap">
+    <div class="kicker">Try it</div>
+    <h2>Explore the report</h2>
+    <p class="sub">All data is synthetic — no real customer, technician or job information. The
+      tenant this is published to does not permit anonymous embedding, so rather than a cut-down
+      public iframe the full report is here to download and open yourself.</p>
+
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/paigejusti-stack/justice-installations/releases/latest">Download the report (.pbix)</a>
+      <a class="btn" href="#findings">See the findings</a>
+      <a class="btn" href="https://github.com/paigejusti-stack/justice-installations">Browse the source</a>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="tag">Fully interactive</div>
+        <p>The <code>.pbix</code> opens in Power BI Desktop, which is free. Every slicer and
+          cross-filter works, and the data travels with the file — no database or account needed.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Inspect the model</div>
+        <p>Desktop also opens the model itself: 12 tables, 13 relationships, 106 measures, and the
+          DAX behind every figure quoted on this page.</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="artifacts/02-service-line-performance.png" alt="Service Line Performance page: service matrix with revenue, units and average price, plus revenue trend and service ranking">
+      <figcaption>Service Line Performance — where the concentration shows up.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="kicker">Who built this</div>
+    <h2>Paige Justice</h2>
+
+    <div class="about">
+      <div class="bio">
+        <p>I build analytics that hold up under questioning — where every number on a page can be
+          traced back through a measure, a view and a table to the row that produced it.</p>
+        <p>Justice Installations is a complete vertical slice of that: a synthetic SQL Server
+          warehouse, a TMDL semantic model kept in source control as plain text, and a five-page
+          report that ends in recommendations rather than charts. Building it also surfaced a
+          measure that was quietly wrong — a conversion rate dividing jobs by leads instead of
+          converted leads, which read plausibly at the grand total and returned over 100% the
+          moment it was sliced by channel. Finding that is the work.</p>
+        <p>I'm open to conversations about business intelligence and analytics engineering roles.</p>
+      </div>
+
+      <div class="contact">
+        <div class="tag">Get in touch</div>
+        <a href="https://www.linkedin.com/in/paige-justice/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05a4.2 4.2 0 0 1 3.78-2.08c4.04 0 4.79 2.66 4.79 6.12V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z"/></svg>
+          <span>LinkedIn<small>in/paige-justice</small></span>
+        </a>
+        <a href="https://github.com/paigejusti-stack/justice-installations" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+          <span>GitHub<small>Source for this project</small></span>
+        </a>
+        <a href="docs/data-dictionary/Data_Dictionary.xlsx">
+          <svg viewBox="0 0 24 24"><path d="M6 2h8l6 6v14a0 0 0 0 1 0 0H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5zM8 13h8v1.6H8zm0 3.4h8V18H8z"/></svg>
+          <span>Data dictionary<small>109 columns, fully defined</small></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Built with Power BI Desktop, SQL Server and TMDL. All data is synthetic — no real customer,
+      technician or job information is used. DAX measure development and final assembly were done
+      with AI assistance.</p>
+    <div class="frow">
+      <a href="https://www.linkedin.com/in/paige-justice/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/paigejusti-stack/justice-installations">Source on GitHub</a>
+      <a href="docs/data-dictionary/Data_Dictionary.xlsx">Data dictionary</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

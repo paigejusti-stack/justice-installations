@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Justice Installations"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "0f69490f-59e9-4c42-a120-96e8725efc65"
+  }
+}

@@ -1,0 +1,15 @@
+/// Azure SQL server hosting the Justice Installations warehouse. Set this to your own instance.
+expression SqlServer = "your-server.database.windows.net" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 3f2b91c4-7d16-4a08-9c5e-1b8e42f7a903
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
+
+/// Database name on the server above.
+expression SqlDatabase = "justiceinstallations" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 8c47d5e2-0a93-4f61-b7d8-6e2a09c3f145
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text

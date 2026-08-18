@@ -1,0 +1,39 @@
+/// Disconnected stage list that drives the Lead Funnel visual (Total -> Converted -> Declined -> Open).
+table 'Lead Funnel Stages'
+	lineageTag: c2000001-0001-4a01-9a01-000000000001
+
+	column Stage
+		lineageTag: c2000001-0002-4a01-9a01-000000000002
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Stage]
+		sortByColumn: 'Stage Order'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Stage Order'
+		isHidden
+		formatString: 0
+		lineageTag: c2000001-0003-4a01-9a01-000000000003
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Stage Order]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Lead Funnel Stages' = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "Stage", STRING,
+				    "Stage Order", INTEGER,
+				    {
+				        {"Total Leads", 1},
+				        {"Converted", 2},
+				        {"Declined", 3},
+				        {"Open", 4}
+				    }
+				)
+
+	annotation PBI_Id = c2000001funnelstages0001
+

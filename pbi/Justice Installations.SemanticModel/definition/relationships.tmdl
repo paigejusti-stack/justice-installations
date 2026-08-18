@@ -1,0 +1,53 @@
+relationship AutoDetected_72241fa1-4ee6-44e0-ab01-17e048c2e1c3
+	fromColumn: Jobs.CityKey
+	toColumn: City.CityKey
+
+relationship AutoDetected_d73190c4-ee69-4c8d-87d9-072f416d6c3b
+	fromColumn: Leads.CityKey
+	toColumn: City.CityKey
+
+relationship AutoDetected_988b6650-8597-4d50-82e1-679e30e51532
+	fromColumn: 'Invoice Lines'.ServiceKey
+	toColumn: Service.ServiceKey
+
+relationship AutoDetected_076a6ac8-83cb-445d-b13d-98851ed40817
+	fromColumn: Jobs.TechnicianKey
+	toColumn: Technician.TechnicianKey
+
+relationship AutoDetected_c99e17b3-01a2-4914-9be3-b51da719361a
+	fromColumn: 'Invoice Lines'.CustomerKey
+	toColumn: Customer.CustomerKey
+
+relationship AutoDetected_fc0750b6-74c4-4b7f-8ece-5565d799b7c4
+	fromColumn: Jobs.CustomerKey
+	toColumn: Customer.CustomerKey
+
+relationship AutoDetected_0680a280-1b4d-4099-9636-717a8e2d13e5
+	fromColumn: Leads.CustomerKey
+	toColumn: Customer.CustomerKey
+
+relationship bc227644-1f07-895a-e616-788fa27ba983
+	fromColumn: Jobs.StartDateKey
+	toColumn: Date.DateKey
+
+relationship a4beb709-655e-44db-922d-bae6c21b34e3
+	fromColumn: 'Invoice Lines'.IssueDateKey
+	toColumn: Date.DateKey
+
+relationship 91efe4a6-85a1-47b6-ae50-a089a8d7067b
+	fromColumn: Leads.RequestedDateKey
+	toColumn: Date.DateKey
+
+relationship AutoDetected_1107b752-3436-49be-bca1-12543fb8db70
+	fromColumn: 'Invoice Lines'.CityKey
+	toColumn: City.CityKey
+
+relationship AutoDetected_a2ce80e1-954f-4d6b-904d-1e0cac43e911
+	fromColumn: 'Invoice Lines'.TechnicianKey
+	toColumn: Technician.TechnicianKey
+
+relationship 1389822f-fdca-4d1b-b8d4-2cf9b268c441
+	isActive: false
+	fromColumn: 'Invoice Lines'.StartDateKey
+	toColumn: Date.DateKey
+

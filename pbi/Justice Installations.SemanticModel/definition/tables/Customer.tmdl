@@ -1,0 +1,60 @@
+/// Customer master, deduplicated, with contact info, consent flags, and lead source.
+table Customer
+	lineageTag: 8a2c3a1f-8144-408a-9e9c-b04d612256df
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 373ba1d4-bb3b-4bf6-8482-1526c0a1a6b0
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Customer Status'
+		dataType: string
+		lineageTag: 2c196dff-537f-4f3e-bcdf-79d188d68d1d
+		summarizeBy: none
+		sourceColumn: Status
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lead Source'
+		dataType: string
+		lineageTag: 478f69ed-1d49-4e4f-b1a3-0b2e6b518e9e
+		summarizeBy: none
+		sourceColumn: LeadSource
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Created Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ecd28ebd-48c4-4c14-a5c2-7a5d061abdd3
+		summarizeBy: none
+		sourceColumn: CreatedDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimCustomer = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SqlServer, SqlDatabase),
+				    dw_DimCustomer = Source{[Schema="dw",Item="vw_DimCustomer"]}[Data]
+				in
+				    dw_DimCustomer
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

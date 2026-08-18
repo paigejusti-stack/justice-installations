@@ -1,0 +1,990 @@
+/// Measure-holder table. All measures live here, organized by display folder.
+table _Measures
+	lineageTag: f23a9674-d70b-4b67-add4-a4d239a59f1c
+
+	/// Sum of all invoice line totals regardless of payment status.
+	measure 'Total Revenue' = SUM('Invoice Lines'[Line Total])
+		formatString: $#,0;($#,0);$0
+		displayFolder: 01 Revenue
+		lineageTag: c1912dfd-f681-49d4-8ae8-2d5a27a1219d
+
+	/// Revenue from invoice lines tied to completed jobs. Filterable by any dimension (service, city, technician, customer, date).
+	measure 'Revenue (Completed Jobs)' = CALCULATE(SUM('Invoice Lines'[Line Total]), 'Invoice Lines'[IsCompleted] = 1)
+		formatString: $#,0;($#,0);$0
+		displayFolder: 01 Revenue
+		lineageTag: 899cac08-3b4e-4d8c-a055-210fc8c515b8
+
+	/// Cash-basis revenue: only invoice lines marked Paid.
+	measure 'Revenue (Paid Invoices)' = CALCULATE(SUM('Invoice Lines'[Line Total]), 'Invoice Lines'[IsPaid] = 1)
+		formatString: $#,0;($#,0);$0
+		displayFolder: 01 Revenue
+		lineageTag: 90ac56f0-04c6-4e50-98b8-cb0410580cc8
+
+	/// Average revenue per completed job.
+	measure 'Avg Job Ticket' = DIVIDE([Revenue (Completed Jobs)], [Completed Jobs])
+		formatString: $#,0;($#,0);$0
+		displayFolder: 01 Revenue
+		lineageTag: de673503-47d4-4067-b07c-27bf55bd1ed6
+
+	/// Average completed-job revenue per active customer in current filter context.
+	measure 'Revenue per Customer' = DIVIDE([Revenue (Completed Jobs)], [Active Customers])
+		formatString: $#,0;($#,0);$0
+		displayFolder: 01 Revenue
+		lineageTag: 7f8ed491-f9b2-4738-b830-6f2fee843167
+
+	/// All jobs regardless of status.
+	measure 'Total Jobs' = COUNTROWS(Jobs)
+		formatString: #,0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: f9ff4086-1c95-4b36-a067-48a4ea922749
+
+	/// Jobs with Status = Completed.
+	measure 'Completed Jobs' = CALCULATE(COUNTROWS(Jobs), Jobs[IsCompleted] = 1)
+		formatString: #,0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: 4a5d0c4d-ef25-44d7-959f-831c7ddc7946
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	/// Jobs with Status = Cancelled.
+	measure 'Cancelled Jobs' = CALCULATE(COUNTROWS(Jobs), Jobs[IsCancelled] = 1)
+		formatString: #,0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: dd0df852-1739-426d-a4e9-723fc2e314a4
+
+	/// Cancelled jobs as a percentage of all jobs.
+	measure 'Cancellation Rate %' = DIVIDE([Cancelled Jobs], [Total Jobs])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 02 Jobs & Operations
+		lineageTag: 6fac41a8-06b3-44b0-abaf-cab76b34badc
+
+	/// Average job duration in minutes (completed jobs only have duration recorded).
+	measure 'Avg Job Duration (min)' = AVERAGE(Jobs[Duration (min)])
+		formatString: #,0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: 7310a386-4845-45c4-be5d-f8ff713776bf
+
+	/// Average customer rating on a 1-5 scale.
+	measure 'Avg Customer Rating' = AVERAGE(Jobs[Customer Rating])
+		formatString: 0.00
+		displayFolder: 02 Jobs & Operations
+		lineageTag: 82366142-1df1-4d80-8bf7-d5f177a56dea
+
+	/// Completed jobs from customers with more than one completed job.
+	measure 'Repeat Customer Jobs' =
+			VAR _RepeatCustomers =
+			        FILTER(
+			            VALUES(Customer[CustomerKey]),
+			            CALCULATE(COUNTROWS(Jobs), Jobs[IsCompleted] = 1) > 1
+			        )
+			    RETURN
+			    CALCULATE(
+			        [Completed Jobs],
+			        KEEPFILTERS(_RepeatCustomers)
+			    )
+		formatString: #,0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: c9e70428-bd24-42ec-80f3-afafc8a0c97d
+
+	/// Share of completed jobs from repeat customers.
+	measure 'Repeat Customer Rate %' = DIVIDE([Repeat Customer Jobs], [Completed Jobs])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 02 Jobs & Operations
+		lineageTag: 35a690c4-db92-4499-ae78-fbcacd852378
+
+	/// All requests received.
+	measure 'Total Leads' = COUNTROWS(Leads)
+		formatString: #,0
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: 35154469-8889-4371-bf7c-6a19b17767f0
+
+	/// Requests converted to a job.
+	measure 'Converted Leads' = CALCULATE(COUNTROWS(Leads), Leads[IsConverted] = 1)
+		formatString: #,0
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: 409fff38-0202-4f92-ad5f-1d9696153bf4
+
+	/// Average days between request submitted and job start date.
+	measure 'Avg Days to Start' = AVERAGE(Jobs[Request-to-Start Days])
+		formatString: 0.0
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: 5b5c59c7-59aa-4e7f-8f17-38154c433252
+
+	/// Distinct customers in Customer (post-dedup).
+	measure 'Total Customers' = COUNTROWS(Customer)
+		formatString: #,0
+		displayFolder: 04 Customers
+		lineageTag: 9b9cd780-4c85-4dad-8c16-699f52e6ab2d
+
+	/// Distinct customers with at least one completed job in the current filter context.
+	measure 'Active Customers' =
+			
+			CALCULATE ( DISTINCTCOUNT ( Jobs[CustomerKey] ), Jobs[IsCompleted] = 1 )
+		formatString: #,0
+		displayFolder: 04 Customers
+		lineageTag: 30da2df7-3674-4ae8-b98b-c7a5e93b3b11
+
+	/// ServiceName with the highest Revenue (Completed Jobs) in the current filter context. Returns blank if no revenue.
+	measure 'Top Service' =
+			VAR _TopRow =
+			    TOPN(
+			        1,
+			        SUMMARIZE(
+			            Service,
+			            Service[Service Name],
+			            "@Rev", [Revenue (Completed Jobs)]
+			        ),
+			        [@Rev], DESC
+			    )
+			VAR _Name =
+			    MAXX(_TopRow, Service[Service Name])
+			RETURN
+			    IF(ISBLANK([Revenue (Completed Jobs)]), BLANK(), _Name)
+		displayFolder: 01 Revenue
+		lineageTag: 2b06d04d-14c1-4532-a4b0-9853fb1b331d
+
+	/// Distinct count of services delivered on completed jobs.
+	measure 'Services Offered' =
+			CALCULATE(
+			    DISTINCTCOUNT('Invoice Lines'[ServiceKey]),
+			    'Invoice Lines'[IsCompleted] = 1
+			)
+		formatString: #,0
+		displayFolder: 01 Revenue
+		lineageTag: 6b3e3066-6c64-4005-b5d0-32f0ffc1196b
+
+	/// Revenue (Completed Jobs) divided by total units sold on completed jobs. Effective average price per unit.
+	measure 'Avg Service Price' =
+			VAR _Rev = [Revenue (Completed Jobs)]
+			VAR _Units =
+			    CALCULATE(
+			        SUM('Invoice Lines'[Quantity]),
+			        'Invoice Lines'[IsCompleted] = 1
+			    )
+			RETURN
+			    DIVIDE(_Rev, _Units)
+		formatString: "$"#,0.00;-"$"#,0.00;"$"0.00
+		displayFolder: 01 Revenue
+		lineageTag: be3047ba-c89e-4fd7-884d-74b257e1f8dc
+
+	/// Each service's share of Revenue (Completed Jobs) across all selected services in Service. Uses ALLSELECTED to ignore service-level filters.
+	measure 'Revenue % of Total' =
+			
+			DIVIDE(
+			    [Revenue (Completed Jobs)],
+			    CALCULATE( [Revenue (Completed Jobs)], ALLSELECTED(Service) )
+			)
+		formatString: 0%;-0%;0%
+		displayFolder: 01 Revenue
+		lineageTag: 1624f339-f908-4075-ac37-0913f11c0925
+
+	/// Total quantity of service units sold on completed jobs. Returns formatted text, not a number. Use in cards/labels only; use the underlying SUM for math.
+	measure 'Units Sold' =
+			
+			VAR _Units =
+			    CALCULATE(
+			        SUM( 'Invoice Lines'[Quantity] ),
+			        'Invoice Lines'[IsCompleted] = 1
+			    )
+			RETURN
+			    FORMAT( _Units, "#,0" )
+		formatString: #,0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: cdfb3cb7-8531-4924-a8ef-ab4a51662f56
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	/// Two-line label combining Top Service name with its revenue (formatted as currency). Designed for card visuals.
+	measure 'Top Service With Rev' =
+			
+			VAR _Top = [Top Service]
+			VAR _Rev = CALCULATE([Revenue (Completed Jobs)], Service[Service Name] = _Top)
+			RETURN _Top & UNICHAR(10) & FORMAT(_Rev, "$#,0")
+		displayFolder: 01 Revenue
+		lineageTag: 82b51a17-1276-4a5f-839b-ebc383c41b00
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Text-formatted version of Total Jobs for card visuals. Returns string, not a number. Use Total Jobs for calculations.
+	measure 'Total Jobs Display' = FORMAT([Total Jobs], "#,0")
+		displayFolder: 02 Jobs & Operations
+		lineageTag: f4e82fcd-9e5e-4fad-b8d1-db85f15458e0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Booked Revenue (Jobs)' = SUM(Jobs[Job Total])
+		formatString: "$"#,0;-"$"#,0;"$"0
+		displayFolder: 01 Revenue
+		lineageTag: 965eb59f-a77d-42a4-ba39-5f12159761a6
+
+	measure 'Revenue YoY Label' =
+			VAR _Curr = [Booked Revenue (Jobs)]
+			VAR _Prior = CALCULATE([Booked Revenue (Jobs)], SAMEPERIODLASTYEAR('Date'[Date]))
+			VAR _pct = DIVIDE(_Curr - _Prior, _Prior)
+			VAR _arrow = IF(_pct >= 0, "▲", "▼")
+			RETURN _arrow & " " & FORMAT(_pct, "+0%;-0%") & " YoY"
+		displayFolder: 01 Revenue
+		lineageTag: b61fccb6-a067-4f11-8ba1-f48d5808b143
+
+	measure 'Jobs YoY Label' =
+			VAR _Curr = [Total Jobs]
+			VAR _Prior = CALCULATE([Total Jobs], SAMEPERIODLASTYEAR('Date'[Date]))
+			VAR _delta = _Curr - _Prior
+			VAR _arrow = IF(_delta >= 0, "▲", "▼")
+			RETURN _arrow & " " & FORMAT(_delta, "+#,##0;-#,##0") & " YoY"
+		displayFolder: 02 Jobs & Operations
+		lineageTag: f723c03f-817f-4a83-bb62-99107ef81214
+
+	measure 'Avg Ticket (Booked)' = DIVIDE([Booked Revenue (Jobs)], [Total Jobs])
+		formatString: "$"#,0;-"$"#,0;"$"0
+		displayFolder: 01 Revenue
+		lineageTag: 0e444586-10af-4e61-8f8c-1c1967b3b354
+
+	measure 'Conversion Rate' = DIVIDE([Converted Leads], [Total Leads])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: bf7dc3dd-fe8f-46e6-96f0-e4aa8ef9503a
+
+	measure 'Conversion vs Industry pp' = [Conversion Rate] - 0.35
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: c0ed740e-7f3e-4a14-a0a5-21afb8fd2f03
+
+	measure 'Completion Rate' = DIVIDE([Completed Jobs], [Total Jobs])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 02 Jobs & Operations
+		lineageTag: 6afa51d6-d79f-4dc9-87a2-84b5988b1fac
+
+	/// Returns the time the report is rendered or refreshed in the viewer (NOW()), NOT the actual dataset refresh time. In Power BI Service, replace with a refresh-timestamp column from Power Query for accuracy.
+	measure 'Last Refreshed' =
+			FORMAT(
+			    CALCULATE(
+			        MAX('Invoice Lines'[Issue Date]),
+			        REMOVEFILTERS()
+			    ),
+			    "mmm d, yyyy"
+			)
+		lineageTag: b2aeaea8-7810-4980-95cb-5fde4d4511b8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Outstanding AR' = [Total Revenue] - [Revenue (Paid Invoices)]
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: 05 Time Intelligence
+		lineageTag: 91bf0506-906e-4452-a30e-df2b310be948
+
+	measure 'Total Revenue YoY %' = CALCULATE([Total Revenue], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: 404513bb-04b4-43f8-8e58-338d6d6a4b1c
+
+	measure 'Completed Jobs YoY %' = CALCULATE([Completed Jobs], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: 71254dcc-ba43-4c6d-8133-476c7bd118b2
+
+	measure 'Avg Job Ticket YoY %' = CALCULATE([Avg Job Ticket], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: 9176027b-4ef8-4c98-838c-97d99cd7484e
+
+	measure 'Active Customers YoY %' = CALCULATE([Active Customers], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: f108758a-4f49-48fc-957e-aa2b6180181d
+
+	measure 'Avg Customer Rating YoY' = CALCULATE([Avg Customer Rating], 'Time Intelligence'[Time Calc] = "YoY")
+		formatString: 0.00;-0.00;0.00
+		displayFolder: 05 Time Intelligence
+		lineageTag: 359c0e75-a788-4d1d-a743-653ccd0a24d2
+
+	measure 'Outstanding AR YoY %' = CALCULATE([Outstanding AR], 'Time Intelligence'[Time Calc] = "YoY %")
+		displayFolder: 05 Time Intelligence
+		lineageTag: 6d9f0838-fa19-4418-8c6d-ccb93de0ac4d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Revenue YoY % Display' =
+			VAR _v = [Total Revenue YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: f21af8e8-18be-4698-ac76-a79af8f7a0c3
+
+	measure 'Completed Jobs YoY % Display' =
+			VAR _v = [Completed Jobs YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: 13fca7d8-83ad-42e2-80f2-7af61321174c
+
+	measure 'Avg Job Ticket YoY % Display' =
+			VAR _v = [Avg Job Ticket YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b89ac7b2-7232-447b-8e8e-84e71cf1a2c3
+
+	measure 'Active Customers YoY % Display' =
+			VAR _v = [Active Customers YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: 53974732-12bb-4e12-b24a-be834d80ccaf
+
+	measure 'Avg Customer Rating YoY Display' =
+			VAR _v = [Avg Customer Rating YoY]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.00" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.00" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: 37d51793-9db9-4383-a394-fc83906012c5
+
+	measure 'Outstanding AR YoY % Display' =
+			VAR _v = [Outstanding AR YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: a4f29431-bd56-413f-bf00-98ef04641495
+
+	measure 'Total Revenue YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Total Revenue YoY %] >= 0.05, "#5DBF7A",
+			    [Total Revenue YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: 0e553a80-3824-4ae8-baeb-389f8016168d
+
+	measure 'Completed Jobs YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Completed Jobs YoY %] >= 0.05, "#5DBF7A",
+			    [Completed Jobs YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: 8c207015-9f44-4116-b7e4-03511e00f1ad
+
+	measure 'Avg Job Ticket YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Avg Job Ticket YoY %] >= 0.05, "#5DBF7A",
+			    [Avg Job Ticket YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: ef9350ec-0a82-4d78-965a-0ce55a0a2145
+
+	measure 'Active Customers YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Active Customers YoY %] >= 0.05, "#5DBF7A",
+			    [Active Customers YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: e91197d6-4528-4428-8529-cbc87c2b1178
+
+	measure 'Avg Customer Rating YoY Color' =
+			SWITCH ( TRUE (),
+			    [Avg Customer Rating YoY] >= 0, "#5DBF7A",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: 5f8be651-5e79-440a-ada1-b2c05fa18b31
+
+	measure 'Outstanding AR YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Outstanding AR YoY %] <= -0.05, "#5DBF7A",
+			    [Outstanding AR YoY %] <= 0,     "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: 586d8a53-b93d-4cef-9e7c-c543f0bbfb80
+
+	/// Distinct cities with at least one completed job in current filter context.
+	measure 'Cities Served' =
+			CALCULATE (
+			    DISTINCTCOUNT ( Jobs[CityKey] ),
+			    Jobs[IsCompleted] = 1
+			)
+		formatString: #,0
+		displayFolder: 06 Geographic
+		lineageTag: f6475316-a5f5-465b-aee3-ce6a9c9d4844
+
+	/// City name with highest Revenue (Completed Jobs) in current filter context.
+	measure 'Top City' =
+			VAR _TopRow =
+			    TOPN (
+			        1,
+			        SUMMARIZE (
+			            City,
+			            City[City],
+			            "@Rev", [Revenue (Completed Jobs)]
+			        ),
+			        [@Rev], DESC
+			    )
+			RETURN
+			    IF (
+			        ISBLANK ( [Revenue (Completed Jobs)] ),
+			        BLANK (),
+			        MAXX ( _TopRow, City[City] )
+			    )
+		displayFolder: 06 Geographic
+		lineageTag: c006d0fc-1694-4332-8531-fcb27af6ec66
+
+	/// Top city's share of total revenue. Concentration risk indicator.
+	measure 'Top City Share %' =
+			VAR _TopCity = [Top City]
+			VAR _TopRev =
+			    CALCULATE (
+			        [Revenue (Completed Jobs)],
+			        City[City] = _TopCity
+			    )
+			RETURN
+			    DIVIDE ( _TopRev, [Revenue (Completed Jobs)] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 06 Geographic
+		lineageTag: 1b7f2b6d-e93d-4d51-98b0-2472086251b2
+
+	/// Average revenue per active city.
+	measure 'Revenue per City' =
+			DIVIDE (
+			    [Revenue (Completed Jobs)],
+			    [Cities Served]
+			)
+		formatString: $#,0;($#,0);$0
+		displayFolder: 06 Geographic
+		lineageTag: 861a461c-930c-4b28-a35e-0e6e511a0017
+
+	measure 'Cities Served YoY %' = CALCULATE ( [Cities Served], 'Time Intelligence'[Time Calc] = "YoY %" )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 06 Geographic
+		lineageTag: 4f0724e7-c491-4ab9-9088-c6d289c34ffe
+
+	measure 'Cities Served YoY % Display' =
+			VAR _v = [Cities Served YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 06 Geographic
+		lineageTag: 6234b3b3-d597-4d8a-8c84-a3990203651f
+
+	measure 'Cities Served YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Cities Served YoY %] >= 0.05, "#5DBF7A",
+			    [Cities Served YoY %] >= 0,    "#A8B0C5",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 06 Geographic
+		lineageTag: 80ab3506-22bc-4d36-b8ba-6edfad4e0c82
+
+	measure 'Top City Revenue' =
+			VAR _TopCity = [Top City]
+			RETURN
+			    CALCULATE ( [Revenue (Completed Jobs)], City[City] = _TopCity )
+		formatString: $#,0;($#,0);$0
+		displayFolder: 06 Geographic
+		lineageTag: 54349350-5891-4f0a-a170-90b8e4cf254a
+
+	measure 'Top City Revenue Display' =
+			VAR _v = [Top City Revenue]
+			RETURN IF ( ISBLANK ( _v ), "—", FORMAT ( _v, "$#,0" ) )
+		displayFolder: 06 Geographic
+		lineageTag: 15261b37-adff-49aa-8afa-78b7edee0dba
+
+	measure 'Top City Share % YoY' = CALCULATE ( [Top City Share %], 'Time Intelligence'[Time Calc] = "YoY" )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 06 Geographic
+		lineageTag: 5fa2e1e2-13cf-44e4-9782-80df69bdb156
+
+	measure 'Top City Share % YoY Display' =
+			VAR _v = [Top City Share % YoY]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " pts vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " pts vs LY"
+			        )
+			    )
+		displayFolder: 06 Geographic
+		lineageTag: d6354684-978e-4afb-ba42-e03e4ba5ca35
+
+	measure 'Top City Share % YoY Color' =
+			SWITCH ( TRUE (),
+			    [Top City Share % YoY] <= -0.05, "#5DBF7A",
+			    [Top City Share % YoY] <= 0,     "#A8B0C5",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 06 Geographic
+		lineageTag: ca380177-6fb1-4553-89c5-f2682f88d15f
+
+	measure 'Revenue per City YoY %' = CALCULATE ( [Revenue per City], 'Time Intelligence'[Time Calc] = "YoY %" )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 06 Geographic
+		lineageTag: e6ea2bad-f2a6-42d7-a5a8-241e8b544156
+
+	measure 'Revenue per City YoY % Display' =
+			VAR _v = [Revenue per City YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF (
+			            _v >= 0,
+			            "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY",
+			            "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY"
+			        )
+			    )
+		displayFolder: 06 Geographic
+		lineageTag: 6818be56-76d4-4c5e-a857-edd7a47e3ced
+
+	measure 'Revenue per City YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Revenue per City YoY %] >= 0.05, "#5DBF7A",
+			    [Revenue per City YoY %] >= 0,    "#A8B0C5",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 06 Geographic
+		lineageTag: a56fa60d-3fc4-4868-ae7b-af796b080230
+
+	/// City revenue as % above or below the metro-wide average revenue per city. Positive = over-performer.
+	measure 'Revenue vs Metro Avg' =
+			VAR _CityRev = [Revenue (Completed Jobs)]
+			VAR _MetroAvg =
+			    CALCULATE (
+			        [Revenue per City],
+			        ALL ( City )
+			    )
+			RETURN
+			    DIVIDE ( _CityRev - _MetroAvg, _MetroAvg )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 06 Geographic
+		lineageTag: a2162ee8-8ec3-4468-9f6c-4e8c6e1800c6
+
+	/// Requests explicitly declined by the prospect (IsDeclined = 1).
+	measure 'Declined Leads' = CALCULATE(COUNTROWS(Leads), Leads[IsDeclined] = 1)
+		formatString: #,0
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: 3f2a8c14-5d7b-4e93-a1c6-08b2e94f7a10
+
+	/// Requests still open / pending: not yet converted or declined (IsOpen = 1).
+	measure 'Open Leads' = CALCULATE(COUNTROWS(Leads), Leads[IsOpen] = 1)
+		formatString: #,0
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: 6b90d271-2e4a-41f8-bb35-77c0a1e5d922
+
+	/// Distinct customers whose CreatedDate falls in the selected date range. Customer has no relationship to 'Date', so the window is applied directly to CreatedDate.
+	measure 'New Customers' =
+			VAR _MinDate = MIN ( 'Date'[Date] )
+			VAR _MaxDateExclusive = MAX ( 'Date'[Date] ) + 1
+			RETURN
+			CALCULATE (
+			    COUNTROWS ( Customer ),
+			    Customer[Created Date] >= _MinDate,
+			    Customer[Created Date] < _MaxDateExclusive
+			)
+		formatString: #,0
+		displayFolder: 04 Customers
+		lineageTag: 7c1e9a30-4b8f-4e21-9a55-2d61f0c3aa01
+
+	/// Total Customers change vs last year (%). Driven by the Time Intelligence selector.
+	measure 'Total Customers YoY %' = CALCULATE([Total Customers], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0001-4a01-9a01-000000000001
+
+	measure 'Total Customers YoY % Display' =
+			VAR _v = [Total Customers YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v >= 0, "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY", "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0002-4a01-9a01-000000000002
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Repeat Customer Rate change vs last year, in percentage points.
+	measure 'Repeat Customer Rate % YoY' = CALCULATE([Repeat Customer Rate %], 'Time Intelligence'[Time Calc] = "YoY")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0003-4a01-9a01-000000000003
+
+	measure 'Repeat Customer Rate % YoY Display' =
+			VAR _v = [Repeat Customer Rate % YoY]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v >= 0, "▲ " & FORMAT ( _v, "0.0%" ) & " pts vs LY", "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " pts vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0004-4a01-9a01-000000000004
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Revenue per Customer change vs last year (%).
+	measure 'Revenue per Customer YoY %' = CALCULATE([Revenue per Customer], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0005-4a01-9a01-000000000005
+
+	measure 'Revenue per Customer YoY % Display' =
+			VAR _v = [Revenue per Customer YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v >= 0, "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY", "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0006-4a01-9a01-000000000006
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Conversion Rate change vs last year, in percentage points.
+	measure 'Conversion Rate YoY' = CALCULATE([Conversion Rate], 'Time Intelligence'[Time Calc] = "YoY")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0007-4a01-9a01-000000000007
+
+	measure 'Conversion Rate YoY Display' =
+			VAR _v = [Conversion Rate YoY]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v >= 0, "▲ " & FORMAT ( _v, "0.0%" ) & " pts vs LY", "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " pts vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0008-4a01-9a01-000000000008
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Customers YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Total Customers YoY %] >= 0.05, "#5DBF7A",
+			    [Total Customers YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0009-4a01-9a01-000000000009
+
+	measure 'Repeat Customer Rate % YoY Color' =
+			SWITCH ( TRUE (),
+			    [Repeat Customer Rate % YoY] >= 0.05, "#5DBF7A",
+			    [Repeat Customer Rate % YoY] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0010-4a01-9a01-000000000010
+
+	measure 'Conversion Rate YoY Color' =
+			SWITCH ( TRUE (),
+			    [Conversion Rate YoY] >= 0.05, "#5DBF7A",
+			    [Conversion Rate YoY] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0011-4a01-9a01-000000000011
+
+	measure 'Revenue per Customer YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Revenue per Customer YoY %] >= 0.05, "#5DBF7A",
+			    [Revenue per Customer YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0012-4a01-9a01-000000000012
+
+	/// Each lead status's share of all leads (ignores the status filter on the row).
+	measure 'Lead Status %' = DIVIDE([Total Leads], CALCULATE([Total Leads], REMOVEFILTERS(Leads[Request Status])))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: b1000001-0013-4a01-9a01-000000000013
+
+	/// Total Jobs change vs last year (%).
+	measure 'Total Jobs YoY %' = CALCULATE([Total Jobs], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0014-4a01-9a01-000000000014
+
+	measure 'Total Jobs YoY % Display' =
+			VAR _v = [Total Jobs YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v >= 0, "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY", "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0015-4a01-9a01-000000000015
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Jobs YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Total Jobs YoY %] >= 0.05, "#5DBF7A",
+			    [Total Jobs YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0016-4a01-9a01-000000000016
+
+	/// Cancellation Rate change vs last year, in percentage points. Lower is better.
+	measure 'Cancellation Rate % YoY' = CALCULATE([Cancellation Rate %], 'Time Intelligence'[Time Calc] = "YoY")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0017-4a01-9a01-000000000017
+
+	measure 'Cancellation Rate % YoY Display' =
+			VAR _v = [Cancellation Rate % YoY]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v <= 0, "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " pts vs LY", "▲ " & FORMAT ( _v, "0.0%" ) & " pts vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0018-4a01-9a01-000000000018
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cancellation Rate % YoY Color' =
+			SWITCH ( TRUE (),
+			    [Cancellation Rate % YoY] <= -0.005, "#5DBF7A",
+			    [Cancellation Rate % YoY] <= 0,      "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0019-4a01-9a01-000000000019
+
+	/// Completed jobs of total, as a card sub-label (e.g. "2,371 of 2,500").
+	measure 'Completion Detail' = FORMAT([Completed Jobs], "#,0") & " of " & FORMAT([Total Jobs], "#,0")
+		displayFolder: 02 Jobs & Operations
+		lineageTag: b1000001-0020-4a01-9a01-000000000020
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Avg job duration change vs last year (%). Lower is better.
+	measure 'Avg Job Duration YoY %' = CALCULATE([Avg Job Duration (min)], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0021-4a01-9a01-000000000021
+
+	measure 'Avg Job Duration YoY % Display' =
+			VAR _v = [Avg Job Duration YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v <= 0, "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY", "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0022-4a01-9a01-000000000022
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Job Duration YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Avg Job Duration YoY %] <= -0.05, "#5DBF7A",
+			    [Avg Job Duration YoY %] <= 0,     "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0023-4a01-9a01-000000000023
+
+	/// Avg days from request to start, change vs last year (%). Lower is better.
+	measure 'Avg Days Request to Start YoY %' = CALCULATE([Avg Days to Start], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0024-4a01-9a01-000000000024
+
+	measure 'Avg Days Request to Start YoY % Display' =
+			VAR _v = [Avg Days Request to Start YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v <= 0, "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY", "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0025-4a01-9a01-000000000025
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Days Request to Start YoY % Color' =
+			SWITCH ( TRUE (),
+			    [Avg Days Request to Start YoY %] <= -0.05, "#5DBF7A",
+			    [Avg Days Request to Start YoY %] <= 0,     "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0027-4a01-9a01-000000000027
+
+	/// New Customers change vs last year (%).
+	measure 'New Customers YoY %' = CALCULATE([New Customers], 'Time Intelligence'[Time Calc] = "YoY %")
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0028-4a01-9a01-000000000028
+
+	measure 'New Customers YoY % Display' =
+			VAR _v = [New Customers YoY %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        "(no prior period)",
+			        IF ( _v >= 0, "▲ " & FORMAT ( _v, "0.0%" ) & " vs LY", "▼ " & FORMAT ( ABS ( _v ), "0.0%" ) & " vs LY" )
+			    )
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0029-4a01-9a01-000000000029
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'New Customers YoY % Color' =
+			SWITCH ( TRUE (),
+			    [New Customers YoY %] >= 0.05, "#5DBF7A",
+			    [New Customers YoY %] >= 0,    "#F5E6A8",
+			    "#E27D60" )
+		isHidden
+		displayFolder: 05 Time Intelligence
+		lineageTag: b1000001-0030-4a01-9a01-000000000030
+
+	/// Value for each Lead Funnel stage (driven by the disconnected Lead Funnel Stages table).
+	measure 'Lead Funnel Value' =
+			SWITCH ( SELECTEDVALUE ( 'Lead Funnel Stages'[Stage] ),
+			    "Total Leads", [Total Leads],
+			    "Converted",   [Converted Leads],
+			    "Declined",    [Declined Leads],
+			    "Open",        [Open Leads] )
+		formatString: #,0
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: b1000001-0031-4a01-9a01-000000000031
+
+	/// Per-stage color for the Lead Funnel visual.
+	measure 'Lead Funnel Color' =
+			SWITCH ( SELECTEDVALUE ( 'Lead Funnel Stages'[Stage] ),
+			    "Total Leads", "#5B9BD5",
+			    "Converted",   "#5DBF7A",
+			    "Declined",    "#D9534F",
+			    "Open",        "#E6A817",
+			    "#A8B0C5" )
+		isHidden
+		displayFolder: 03 Leads & Pipeline
+		lineageTag: b1000001-0032-4a01-9a01-000000000032
+
+	/// Composite technician performance, 0-100. Min-max normalized across visible technicians and weighted: Revenue 30%, Completed Jobs 20%, Completion Rate 20%, Avg Rating 20%, low Cancellation 10%.
+	measure 'Performance Score' =
+			VAR _t = ALL ( Technician )
+			VAR _revMin = MINX ( _t, [Revenue (Completed Jobs)] )
+			VAR _revMax = MAXX ( _t, [Revenue (Completed Jobs)] )
+			VAR _jobMin = MINX ( _t, [Completed Jobs] )
+			VAR _jobMax = MAXX ( _t, [Completed Jobs] )
+			VAR _compMin = MINX ( _t, [Completion Rate] )
+			VAR _compMax = MAXX ( _t, [Completion Rate] )
+			VAR _rateMin = MINX ( _t, [Avg Customer Rating] )
+			VAR _rateMax = MAXX ( _t, [Avg Customer Rating] )
+			VAR _cancMin = MINX ( _t, [Cancellation Rate %] )
+			VAR _cancMax = MAXX ( _t, [Cancellation Rate %] )
+			VAR _nRev = DIVIDE ( [Revenue (Completed Jobs)] - _revMin, _revMax - _revMin )
+			VAR _nJob = DIVIDE ( [Completed Jobs] - _jobMin, _jobMax - _jobMin )
+			VAR _nComp = DIVIDE ( [Completion Rate] - _compMin, _compMax - _compMin )
+			VAR _nRate = DIVIDE ( [Avg Customer Rating] - _rateMin, _rateMax - _rateMin )
+			VAR _nCanc = 1 - DIVIDE ( [Cancellation Rate %] - _cancMin, _cancMax - _cancMin )
+			RETURN
+			    IF ( ISBLANK ( [Completed Jobs] ), BLANK (),
+			        100 * ( 0.30 * _nRev + 0.20 * _nJob + 0.20 * _nComp + 0.20 * _nRate + 0.10 * _nCanc ) )
+		formatString: 0.0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: b1000001-0034-4a01-9a01-000000000034
+
+	/// Overall technician rank, 1 = best (ranks by Performance Score).
+	measure 'Performance Rank' =
+			IF ( HASONEVALUE ( Technician[Technician Name] ),
+			    RANKX ( ALL ( Technician ), [Performance Score],, DESC, DENSE ) )
+		formatString: 0
+		displayFolder: 02 Jobs & Operations
+		lineageTag: b1000001-0035-4a01-9a01-000000000035
+
+	/// Star rating from overall performance rank (rank 1 = 5 stars, descending).
+	measure 'Rating Stars' =
+			VAR _rank = [Performance Rank]
+			VAR _f = MIN ( 5, MAX ( 1, 6 - _rank ) )
+			RETURN IF ( ISBLANK ( _rank ), "", REPT ( "★", _f ) & REPT ( "☆", 5 - _f ) )
+		displayFolder: 02 Jobs & Operations
+		lineageTag: b1000001-0033-4a01-9a01-000000000033
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column _
+		isHidden
+		formatString: 0
+		lineageTag: 4eb67070-3e21-47ba-931b-fb434e682067
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [_]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW("_", BLANK())
+

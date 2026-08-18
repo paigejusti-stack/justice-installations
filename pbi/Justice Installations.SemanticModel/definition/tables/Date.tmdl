@@ -1,0 +1,211 @@
+/// Calendar with day, week, month, quarter, year attributes. Marked as Date Table.
+table Date
+	lineageTag: 2473db59-4d32-45c8-b4c1-014142be5f1f
+	dataCategory: Time
+
+	column DateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 20f2dd91-3203-4f3b-b05a-74d127b9bd7a
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		isUnique
+		isKey
+		formatString: Long Date
+		lineageTag: 11ddb7e1-bc18-4a6e-aa9b-8a32f06c8fee
+		summarizeBy: none
+		sourceColumn: Date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week'
+		dataType: int64
+		formatString: 0
+		lineageTag: 1a68a58c-8cee-4f64-b49c-4430f6a9d6c2
+		summarizeBy: none
+		sourceColumn: DayOfWeek
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		dataType: string
+		lineageTag: a3f0b6e7-abb7-465f-aaf4-fd3997ed4936
+		summarizeBy: none
+		sourceColumn: DayName
+		sortByColumn: 'Day of Week'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Month'
+		dataType: int64
+		formatString: 0
+		lineageTag: 4cb17d0a-42a1-4203-9ce0-2e48b92f43fc
+		summarizeBy: none
+		sourceColumn: DayOfMonth
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7f4e4385-9360-4249-a6f1-ba826379280e
+		summarizeBy: none
+		sourceColumn: DayOfYear
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week of Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0873d65b-1662-4125-8e53-920d0e5b1738
+		summarizeBy: none
+		sourceColumn: WeekOfYear
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNum
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b2b5bcc2-5605-48b4-995e-fa187cdfb23d
+		summarizeBy: none
+		sourceColumn: MonthNum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		lineageTag: dc9b1ce9-badc-45a9-add1-ac9f99e74271
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: MonthNum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month (Short)'
+		dataType: string
+		lineageTag: 5df203f0-8312-439d-8b14-10eafd6d5aa1
+		summarizeBy: none
+		sourceColumn: MonthShort
+		sortByColumn: MonthNum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month-Year
+		dataType: string
+		lineageTag: 5fd4cceb-3e56-4277-9275-8ffcfd58fdef
+		summarizeBy: none
+		sourceColumn: MonthYear
+		sortByColumn: YearMonth
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterNum
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 47c81b05-3702-4500-8541-30d0d64e8980
+		summarizeBy: none
+		sourceColumn: QuarterNum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: 2e5860ab-b583-4566-8d9d-9f10bf79c70c
+		summarizeBy: none
+		sourceColumn: QuarterName
+		sortByColumn: DateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 7ec31332-ba58-46e1-8af8-4a885265554b
+		summarizeBy: none
+		sourceColumn: YearNum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Weekend'
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 3183b0fb-ebbf-4f05-b3c9-5f5068d44e8e
+		summarizeBy: none
+		sourceColumn: IsWeekend
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Month End'
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 4e83b562-f0e3-47b9-bf27-6800917529ca
+		summarizeBy: none
+		sourceColumn: IsMonthEnd
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c632b075-2ae0-431d-a04d-b912d60d8aab
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SqlServer, SqlDatabase),
+				    dw_DimDate = Source{[Schema="dw",Item="DimDate"]}[Data]
+				in
+				    dw_DimDate
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

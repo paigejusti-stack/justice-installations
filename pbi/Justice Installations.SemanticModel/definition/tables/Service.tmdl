@@ -1,0 +1,95 @@
+/// Service catalog with pricing and category.
+table Service
+	lineageTag: b581d868-8dea-4f00-bc8a-47e9e92309c1
+
+	column ServiceKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e804c709-9aff-4fa1-9880-335f14448180
+		summarizeBy: none
+		sourceColumn: ServiceKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Service Code'
+		dataType: string
+		lineageTag: 51c60605-53e2-424e-92ab-362d2fdb5008
+		summarizeBy: none
+		sourceColumn: ServiceCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Service Name'
+		dataType: string
+		lineageTag: 62d7000b-1659-4f4f-8aca-1862a8210d61
+		summarizeBy: none
+		sourceColumn: ServiceName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Service Category'
+		dataType: string
+		lineageTag: 4b7cc4a9-aae7-4942-93f4-5073d4f8a97f
+		summarizeBy: none
+		sourceColumn: Category
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'List Price'
+		dataType: double
+		lineageTag: 278f009c-3d5f-4180-9d5d-cd92569feed2
+		summarizeBy: none
+		sourceColumn: ListPrice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Est. Minutes'
+		dataType: int64
+		formatString: 0
+		lineageTag: ddc294a7-aba3-423f-b91c-a589128b0278
+		summarizeBy: none
+		sourceColumn: EstMinutes
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Add-on'
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: c6def53c-d80d-436f-bdff-6af274023ff1
+		summarizeBy: none
+		sourceColumn: IsAddon
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimService = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SqlServer, SqlDatabase),
+				    dw_DimService = Source{[Schema="dw",Item="DimService"]}[Data]
+				in
+				    dw_DimService
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

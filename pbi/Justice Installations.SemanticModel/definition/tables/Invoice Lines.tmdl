@@ -1,0 +1,245 @@
+/// Invoice line items. Grain: one row per service line per invoice.
+table 'Invoice Lines'
+	lineageTag: 9b690991-b981-41e2-b6f1-d47ceec6e183
+
+	column 'Invoice Number'
+		dataType: string
+		lineageTag: ecfadb32-7646-46de-a73f-28c3acd39f1f
+		summarizeBy: none
+		sourceColumn: InvoiceNumber
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Job Number'
+		dataType: string
+		lineageTag: b6a1003d-66d5-4192-9a98-decd8f1af153
+		summarizeBy: none
+		sourceColumn: JobNumber
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a382f036-dbd0-407b-9371-b0deaaedef4e
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1f2cf563-ac48-452a-af06-8b2698dfb65b
+		summarizeBy: none
+		sourceColumn: ServiceKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IssueDateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e90e38d7-4aaa-43a6-af9f-eb4a21f6587a
+		summarizeBy: none
+		sourceColumn: IssueDateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Issue Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: cfed7fc1-3578-4759-bf8b-47f05b2d43b1
+		summarizeBy: none
+		sourceColumn: IssueDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Due Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 96eebfd5-cbcb-41c7-84fa-ec0a0f3daa6d
+		summarizeBy: none
+		sourceColumn: DueDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: b5b706ed-852b-4899-ba8a-78ca4ed2126d
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Unit Price'
+		dataType: double
+		lineageTag: e8a7e74a-5cfd-4d87-b3d4-b9cfe47a7a36
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Discount
+		dataType: double
+		lineageTag: 3472a2d9-1ac1-4b9f-aec9-880bc58eba27
+		summarizeBy: sum
+		sourceColumn: Discount
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Line Total'
+		dataType: double
+		lineageTag: 65f1f2ec-5acd-4572-927b-d4f3b5c14688
+		summarizeBy: sum
+		sourceColumn: LineTotal
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Invoice Status'
+		dataType: string
+		lineageTag: 5469838e-bb8f-4d4d-af76-cba20f4b98b4
+		summarizeBy: none
+		sourceColumn: InvoiceStatus
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsPaid
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c7bf163c-e2c8-412e-90a2-3abced6f8a46
+		summarizeBy: sum
+		sourceColumn: IsPaid
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CityKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f833733c-c06c-442c-8d48-b2a357ecaf49
+		summarizeBy: none
+		sourceColumn: CityKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TechnicianKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: fd773329-749b-44b9-b3d5-779d2076b5e0
+		summarizeBy: none
+		sourceColumn: TechnicianKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column StartDateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cb191ab8-62b9-42d1-a41a-412fe7f72a49
+		summarizeBy: count
+		sourceColumn: StartDateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Job Status'
+		dataType: string
+		lineageTag: 5a376026-94fe-487f-8790-fffda303a933
+		summarizeBy: none
+		sourceColumn: JobStatus
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsCompleted
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 46d4c2ed-b2b9-476f-9299-e07fe293d952
+		summarizeBy: sum
+		sourceColumn: IsCompleted
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsCancelled
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 48cac8ea-6446-4df7-b964-a4ed178c2e2a
+		summarizeBy: sum
+		sourceColumn: IsCancelled
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Start Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 90768b45-f45b-4299-899d-1fad600fb97d
+		summarizeBy: none
+		sourceColumn: StartDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactInvoiceLines = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SqlServer, SqlDatabase),
+				    dw_FactInvoiceLines = Source{[Schema="dw",Item="FactInvoiceLines"]}[Data]
+				in
+				    dw_FactInvoiceLines
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,81 @@
+/// Technician master with hire date and specialty.
+table Technician
+	lineageTag: 5761d325-f4ca-4abb-8f09-68e559263997
+
+	column TechnicianKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8ac2318b-5910-4f9b-95af-855b825aae0a
+		summarizeBy: none
+		sourceColumn: TechnicianKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Technician ID'
+		dataType: string
+		lineageTag: 5aebf889-102d-499b-a20f-db32684873bd
+		summarizeBy: none
+		sourceColumn: TechnicianId
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Technician Name'
+		dataType: string
+		lineageTag: 263a2ce1-665e-42e0-b41b-1009ad359b7e
+		summarizeBy: none
+		sourceColumn: TechnicianName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Hire Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ef391315-d928-45b2-bc92-644d40e1996d
+		summarizeBy: none
+		sourceColumn: HireDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Specialty
+		dataType: string
+		lineageTag: ed4cad5f-25fa-41bd-9bfd-7d3ab15f9170
+		summarizeBy: none
+		sourceColumn: Specialty
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Active'
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: c6601c89-177f-4750-99d1-8077607ffdfa
+		summarizeBy: none
+		sourceColumn: IsActive
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimTechnician = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SqlServer, SqlDatabase),
+				    dw_DimTechnician = Source{[Schema="dw",Item="DimTechnician"]}[Data]
+				in
+				    dw_DimTechnician
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
