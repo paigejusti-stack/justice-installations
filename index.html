@@ -278,7 +278,7 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
   <div class="wrap">
     <img class="hero-logo" src="assets/branding/logo.png" alt="Justice Installations">
     <div class="eyebrow">Power BI · SQL Server · DAX · TMDL</div>
-    <h1>Every invoice gets paid.<br>A quarter of requests never become one.</h1>
+    <h1>From incoming requests<br>to revenue and operations.</h1>
     <p class="lede">Operations and pipeline analytics for a home-installation contractor in the
       Oklahoma City metro — from a SQL Server warehouse, through a TMDL semantic model, to a
       five-page operational report.</p>
@@ -292,8 +292,9 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
       </a>
     </div>
 
+    <p class="sub"><strong>Synthetic-data portfolio project.</strong> Financial and operating figures are sample results, not production client outcomes. <a href="https://paigejusti-stack.github.io/orthoma/portfolio/">View Paige Justice's complete portfolio</a>.</p>
     <div class="cta">
-      <a class="btn primary" href="https://github.com/paigejusti-stack/justice-installations/releases/latest">Download the report (.pbix)</a>
+      <a class="btn primary" href="https://github.com/paigejusti-stack/justice-installations/tree/main/artifacts">View report screenshots</a>
       <a class="btn" href="https://github.com/paigejusti-stack/justice-installations">View on GitHub</a>
       <a class="btn" href="docs/data-dictionary/Data_Dictionary.xlsx">Data dictionary</a>
     </div>
@@ -397,8 +398,7 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
   <div class="wrap">
     <div class="kicker">What the data says</div>
     <h2>Findings</h2>
-    <p class="sub">Every figure below is computed by the model in this repository. None of it is
-      illustrative.</p>
+    <p class="sub">Figures below describe the synthetic dataset. Interpretations are hypotheses to investigate, not proven causes or implemented outcomes.</p>
 
     <div class="finding">
       <h3>The online booking form converts worse than a human taking the request</h3>
@@ -421,9 +421,7 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
         year the data covers: <span class="num">20.2</span> points in 2024,
         <span class="num">14.2</span> in 2025, <span class="num">13.5</span> so far in 2026. The
         form is improving and has never closed the gap.</p>
-      <p>The pattern matters as much as the size. High declines <em>and</em> high stalls together
-        implicate request quality rather than follow-up effort: the form is letting people submit
-        requests that cannot be quoted as written.</p>
+      <p>The combination of higher decline and unresolved shares warrants investigation. Compare request completeness, lead mix, lead age, and response times before attributing the gap to the form or follow-up process.</p>
     </div>
 
     <div class="finding">
@@ -436,9 +434,7 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
         <span class="num bad">346</span> are neither converted nor declined. They are sitting in
         <em>Needs Clarification</em>, <em>Pending Review</em> or <em>New</em>. Nobody said no.
         Nobody said yes.</p>
-      <p>At the average ticket of <span class="num">$251.05</span>, those 346 stalled requests
-        represent roughly <span class="num warn">$87,000</span> of revenue that has neither been
-        won nor formally lost.</p>
+      <p>Multiplying 346 unresolved leads by the <span class="num">$251.05</span> average completed-job ticket gives approximately <span class="num warn">$86,900 in gross scenario value</span>. This assumes 100% conversion and excludes capacity and costs. It is not expected revenue or a forecast.</p>
 
       <figure>
         <img src="artifacts/04-customer-and-pipeline.png" alt="Customer and Pipeline page: customer KPIs, lead funnel by stage, lead source matrix and customers by lead source">
@@ -496,13 +492,12 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
       number that would show it worked.</p>
 
     <div class="rec">
-      <h3><span class="rn">1</span> Fix the booking form, not the follow-up process</h3>
+      <h3><span class="rn">1</span> Investigate the online conversion gap</h3>
       <p><strong>Evidence:</strong> Online leads are declined at 1.76× and stall at 2.00× the manual
-        rate. Both failure modes elevated together implicates the request, not the response.</p>
+        rate. These differences do not establish a cause. Compare lead age, request completeness, source mix, and response times.</p>
       <p><strong>Action:</strong> Make the form collect what a quote actually requires — mount
         surface and stud type for TV work, fixture height and existing wiring for lighting, a photo.
-        Add required fields rather than optional ones. Every field that stops an unquotable request
-        from being submitted is worth more than a faster reply to it.</p>
+        Add required fields rather than optional ones. Test required-field changes alongside response-time improvements and measure both volume and conversion.</p>
       <p class="meas"><strong>Success metric:</strong> Online conversion within 5 points of manual,
         and <em>Needs Clarification</em> under 4% of online leads.</p>
     </div>
@@ -510,7 +505,7 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
     <div class="rec">
       <h3><span class="rn">2</span> Put the 346 stalled leads on a clock</h3>
       <p><strong>Evidence:</strong> 10.8% of all leads are in a non-terminal state. At $251.05
-        average ticket that is roughly $87,000 unresolved.</p>
+        average ticket, the gross scenario value is approximately $86,900 under a 100% conversion assumption, not an expected recovery.</p>
       <p><strong>Action:</strong> Give <em>Needs Clarification</em>, <em>Pending Review</em> and
         <em>New</em> a maximum age — say seven days — after which the lead is either quoted or
         explicitly declined. A declined lead is a clean number. An indefinitely open one is not.</p>
@@ -579,21 +574,18 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
   <div class="wrap">
     <div class="kicker">Try it</div>
     <h2>Explore the report</h2>
-    <p class="sub">All data is synthetic — no real customer, technician or job information. The
-      tenant this is published to does not permit anonymous embedding, so rather than a cut-down
-      public iframe the full report is here to download and open yourself.</p>
+    <p class="sub">All data is synthetic. View report screenshots or inspect the PBIP and TMDL source files. A packaged PBIX download is not currently available.</p>
 
     <div class="cta">
-      <a class="btn primary" href="https://github.com/paigejusti-stack/justice-installations/releases/latest">Download the report (.pbix)</a>
+      <a class="btn primary" href="https://github.com/paigejusti-stack/justice-installations/tree/main/artifacts">View report screenshots</a>
       <a class="btn" href="#findings">See the findings</a>
       <a class="btn" href="https://github.com/paigejusti-stack/justice-installations">Browse the source</a>
     </div>
 
     <div class="grid2">
       <div class="card">
-        <div class="tag">Fully interactive</div>
-        <p>The <code>.pbix</code> opens in Power BI Desktop, which is free. Every slicer and
-          cross-filter works, and the data travels with the file — no database or account needed.</p>
+        <div class="tag">Report source</div>
+        <p>The PBIP project contains the report and semantic model definitions. Open it in Power BI Desktop with the documented SQL Server setup, or review the screenshots directly on GitHub.</p>
       </div>
       <div class="card">
         <div class="tag">Inspect the model</div>
@@ -661,3 +653,4 @@ footer .frow{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; ma
 
 </body>
 </html>
+

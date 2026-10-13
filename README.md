@@ -1,10 +1,12 @@
-# Justice Installations — Home-Services Operations & Pipeline Analytics
+# Justice Installations | Operations & Pipeline Analytics
 
-**A source-controlled Power BI solution for a home-installation contractor in the Oklahoma City metro — from a SQL Server warehouse, through a TMDL semantic model, to a five-page operational report.**
+**An independent Power BI portfolio project demonstrating a SQL Server star schema, a TMDL semantic model, and five report pages covering revenue, service mix, geography, lead conversion, and job operations.**
+
+**[View Paige Justice's complete portfolio](https://paigejusti-stack.github.io/orthoma/portfolio/)** | [LinkedIn](https://www.linkedin.com/in/paige-justice/)
+
+> All data is synthetic. Displayed metrics describe the sample dataset, not actual contractor performance or realized revenue improvements.
 
 ![Executive Overview — KPI strip, revenue trend, revenue by city and service, outstanding AR by county](artifacts/01-executive-overview.png)
-
-> All data is synthetic. Every figure below is computed by the model in this repository — none of it is illustrative.
 
 ---
 
@@ -77,7 +79,9 @@ A page-by-page walkthrough — visuals and measures per page — is in [`docs/re
 
 ---
 
-## Findings
+## Findings from the synthetic dataset
+
+Interpretations below are hypotheses to investigate. The sample patterns alone do not establish operational causes or realized business value.
 
 Every finding below is computed by the model in this repository.
 
@@ -98,7 +102,7 @@ A 16.3-point gap. Online leads stall at exactly **2.00×** the manual rate and a
 | 2025 | 69.6% | 83.8% | 14.2 pp |
 | 2026 (to Apr) | 70.1% | 83.6% | 13.5 pp |
 
-The form is improving and has never closed the gap. The pattern — high declines *and* high stalls — points at request quality rather than follow-up effort: the form is letting people submit requests that cannot be quoted as written.
+The form is improving and has never closed the gap. The combination of higher decline and unresolved shares warrants investigation. Compare request completeness, lead mix, lead age, and response times before attributing the gap to the form or follow-up process.
 
 ### Collections is not the problem. Intake is.
 
@@ -106,7 +110,7 @@ Outstanding AR is **$1,520.20 against $595,242.05 of revenue — 0.26%**. Essent
 
 The leak is entirely upstream. Of 3,200 inbound requests, **764 (23.9%) never become jobs**, and of those, **346 (10.8% of all leads) are neither converted nor declined** — they are sitting in *Needs Clarification*, *Pending Review* or *New*. Nobody said no. Nobody said yes.
 
-At the average ticket of $251.05, those 346 stalled requests represent roughly **$87,000** of revenue that has neither been won nor formally lost.
+Multiplying 346 unresolved leads by the $251.05 average completed-job ticket gives approximately **$86,900 of gross scenario value**. This assumes every unresolved lead converts at that ticket and excludes capacity and costs. It is not expected revenue or a forecast.
 
 ### Nearly a third of revenue is one service category, and a fifth is one line item
 
@@ -134,17 +138,17 @@ Two generalists carry 81% of jobs and $480,699.90 of revenue. The two specialist
 
 ## What to do about it
 
-### 1. Fix the booking form, not the follow-up process
+### 1. Investigate the online conversion gap
 
-**Evidence:** Online leads are declined at 1.76× and stall at 2.00× the manual rate. Both failure modes elevated together implicates the request, not the response.
+**Evidence:** Online leads are declined at 1.76× and stall at 2.00× the manual rate. These differences do not establish a cause. Compare lead age, request completeness, source mix, and response times.
 
-**Action:** Make the form collect what a quote actually requires — mount surface and stud type for TV work, fixture height and existing wiring for lighting, a photo. Add required fields rather than optional ones. Every field that stops an unquotable request from being submitted is worth more than a faster reply to it.
+**Action:** Make the form collect what a quote actually requires — mount surface and stud type for TV work, fixture height and existing wiring for lighting, a photo. Add required fields rather than optional ones. Test required-field changes alongside response-time improvements and measure both lead volume and conversion.
 
 **Success metric:** Online conversion within 5 points of manual, and *Needs Clarification* under 4% of online leads.
 
 ### 2. Put the 346 stalled leads on a clock
 
-**Evidence:** 10.8% of all leads are in a non-terminal state. At $251.05 average ticket that is roughly $87,000 unresolved.
+**Evidence:** 10.8% of all leads are in a non-terminal state. At $251.05 average completed-job ticket, their gross scenario value is approximately $86,900 under a 100% conversion assumption, not an expected recovery.
 
 **Action:** Give *Needs Clarification*, *Pending Review* and *New* a maximum age — say seven days — after which the lead is either quoted or explicitly declined. A declined lead is a clean number. An indefinitely open one is not.
 
@@ -213,7 +217,7 @@ Justice Installations/
 
 **Read it without installing anything.** The report is plain text under [`pbi/`](pbi/) — [`definition/pages/`](pbi/Justice%20Installations.Report/definition/pages/) holds one folder per page with a `visual.json` per visual, and [`definition/tables/`](pbi/Justice%20Installations.SemanticModel/definition/tables/) holds the TMDL, including every measure in [`_Measures.tmdl`](pbi/Justice%20Installations.SemanticModel/definition/tables/_Measures.tmdl).
 
-**Open the report.** Download the `.pbix` from the [latest release](../../releases/latest). It opens in Power BI Desktop with data already imported — no database connection needed to look around.
+**Review the report.** Open the [report screenshots](artifacts/) or inspect the PBIP project and semantic model under [`pbi/`](pbi/). A packaged PBIX download is not currently available.
 
 **Rebuild it end to end.** Build the warehouse from [`sql/`](sql/), then follow [`docs/dev-setup.md`](docs/dev-setup.md) to point the parameters at your own server.
 
@@ -249,3 +253,4 @@ The connection is parameterised and a git clean filter substitutes a placeholder
 - **2026 is a partial year** — data runs to 21 April 2026, so any 2026 total is roughly a third of a year and not comparable to 2024 or 2025 without annualising.
 - **No cost data.** Revenue, not margin. Which service lines are actually profitable is not a question this model can answer.
 - **The Operations page is named "& Forecasting"** but currently carries a trend line rather than a forecast.
+
